@@ -28,35 +28,49 @@ public class View extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800,600);
 
-        JPanel content = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        JPanel leftPanel = new JPanel(new BorderLayout());
+        GridBagConstraints leftPanelGbc = new GridBagConstraints();
+        JPanel content = new JPanel(new GridBagLayout());
+        JPanel leftPanel = new JPanel(new GridBagLayout());
 
         viewer.getThread().start();
 
         // --- Left Panel (left) ---
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 0;
-        gbc.weighty = 1.0;
-        //leftPanel.setBackground();
-        content.add(leftPanel, gbc);
+        gbc.weighty = 1;
+        leftPanel.setBackground(getLightBlueColor());
 
         // --- Control Panel (top-left) ---
+        leftPanelGbc.gridx = 0;
+        leftPanelGbc.gridy = 0;
+        leftPanelGbc.fill = GridBagConstraints.HORIZONTAL;
+        leftPanelGbc.weightx = 0;
+        leftPanelGbc.weighty = 0;
         addFireButtonListener(e -> addBall());
-        leftPanel.add(controlPanel, BorderLayout.CENTER);
+        leftPanel.add(controlPanel, leftPanelGbc);
+
+        //Space-filling panel
+        JPanel spaceFillingPanel = new JPanel(new GridBagLayout());
+        leftPanelGbc.gridy = 1;
+        leftPanelGbc.weighty = 1;
+        leftPanelGbc.fill = GridBagConstraints.VERTICAL;
+        leftPanel.add(spaceFillingPanel, leftPanelGbc);
 
         // --- Data Panel (bot-left) ---
-        setBackground(Color.GREEN);
-        leftPanel.add(dataPanel, BorderLayout.SOUTH);
+        leftPanelGbc.gridy = 2;
+        leftPanelGbc.weighty = 0;
+        leftPanelGbc.fill = GridBagConstraints.HORIZONTAL;
+        leftPanel.add(dataPanel, leftPanelGbc);
+
+        content.add(leftPanel, gbc);
 
         // --- Viewer (right) ---
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
+        gbc.weightx = 3.0;
         content.add(viewer, gbc);
 
         add(content);
@@ -68,7 +82,6 @@ public class View extends JFrame {
     }
     public void addBall() {
         controller.addBall();
-        System.out.println("Funciono");
     }
     public void addRoom(int x, int y, int width, int height) {
         controller.addRoom(x, y, width, height);

@@ -12,43 +12,44 @@ public class ControlPanel extends JPanel {
     private final JButton PAUSE_BUTTON;
     private final JButton RESTART_BUTTON;
     private RangeSlider ballSizeSlider;
+    private RangeSlider ballSpeedSlider;
 
     public ControlPanel(View view) {
         this.view = view;
 
+        setLayout(new GridBagLayout());
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10,10,10,10);
+        gbc.insets = new Insets(6,6,6,6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weighty = 1.0;
+        gbc.weightx = 1.0;
         gbc.gridx = 0;
+        gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
         setBackground(view.getLightBlueColor());
 
         // Reproduction Panel
         JPanel reproductionPanel = new JPanel();
+        reproductionPanel.setLayout(new GridLayout(1,3,2,2));
         this.PLAY_BUTTON = new JButton("▶");
-
-        gbc.gridy = 0;
-        add(PLAY_BUTTON, gbc);
-
         this.PAUSE_BUTTON = new JButton("||");
-        gbc.gridy = 1;
-        add(PAUSE_BUTTON, gbc);
-
         this.RESTART_BUTTON = new JButton("◯");
-        gbc.gridy = 2;
-        add(RESTART_BUTTON, gbc);
+        reproductionPanel.add(PLAY_BUTTON);
+        reproductionPanel.add(PAUSE_BUTTON);
+        reproductionPanel.add(RESTART_BUTTON);
+        add(reproductionPanel, gbc);
 
         this.FIRE_BUTTON = new JButton("Disparar Bola");
-        gbc.gridx = 1;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         add(FIRE_BUTTON, gbc);
 
-        this.ballSizeSlider = new RangeSlider(1,5);
-        gbc.gridx = 2;
+        this.ballSizeSlider = new RangeSlider("Ball Size", 0,100);
+        gbc.gridy = 2;
         add(ballSizeSlider, gbc);
 
-        setPreferredSize(new Dimension(150, 100));
+        this.ballSpeedSlider = new RangeSlider("Ball Speed", 0,100);
+        gbc.gridy = 3;
+        add(ballSpeedSlider, gbc);
     }
     public JButton getFIRE_BUTTON() {
         return this.FIRE_BUTTON;
