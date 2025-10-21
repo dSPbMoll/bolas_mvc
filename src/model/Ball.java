@@ -19,8 +19,8 @@ public class Ball implements Runnable {
     public Ball(Model model) {
         this.model = model;
         this.position = new Position((int) (Math.random() * model.getViewerWidth()), (int) (Math.random() * model.getViewerHeight()));
-        this.speed = calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMinBallSpeedSliderValue());
-        this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinBallSizeSliderValue(), model.getMinBallSizeSliderValue());
+        this.speed = calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMaxBallSpeedSliderValue());
+        this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinBallSizeSliderValue(), model.getMaxBallSizeSliderValue());
         this.COLOR = generateRandomColor();
         Thread thread = new Thread(this);
         thread.start();
