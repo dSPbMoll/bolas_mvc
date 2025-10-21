@@ -41,4 +41,16 @@ public class Model {
         }
         return true;
     }
+    public int getMinBallSpeedSliderValue() {
+        return controller.getMinBallSpeedSliderValue();
+    }
+    public int getMaxBallSpeedSliderValue() {
+        return controller.getMaxBallSpeedSliderValue();
+    }
+    public int getMinBallSizeSliderValue() {
+        return controller.getMinBallSizeSliderValue();
+    }
+    public int getMaxBallSizeSliderValue() {
+        return controller.getMaxBallSizeSliderValue();
+    }
 }

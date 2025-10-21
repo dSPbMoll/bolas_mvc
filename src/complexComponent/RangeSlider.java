@@ -6,10 +6,10 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 
 /**
- * RangeSlider usando GridBagLayout para permitir que los sliders
- * se expandan tanto horizontal como verticalmente según el tamaño
- * del contenedor padre.
+ * This class represents a complex component which mainly contains two sliders. Additionaly,
+ * it has a title for the object and two TextFields for visualizing the selected number
  */
+
 public class RangeSlider extends JPanel {
     private final JLabel titleLabel;
     private final JLabel minLabel;
@@ -28,7 +28,7 @@ public class RangeSlider extends JPanel {
         this.maxLabel = new JLabel("TO");
         this.minTextField = new JTextField();
         this.maxTextField = new JTextField();
-        setMinimumSize(new Dimension(200, 100));
+        setMinimumSize(new Dimension(230, 100));
 
         // Tick configuration for the sliders
         int majorTick = Math.max(1, (maxValue - minValue) / 5); // 5 divisiones por defecto
@@ -92,6 +92,12 @@ public class RangeSlider extends JPanel {
     }
     public JLabel getMaxLabel() {
         return maxLabel;
+    }
+    public int getMinTextFieldValue() {
+        return Integer.parseInt(this.minTextField.getText());
+    }
+    public int getMaxTextFieldValue() {
+        return Integer.parseInt(this.maxTextField.getText());
     }
 
 }

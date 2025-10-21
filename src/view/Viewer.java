@@ -57,7 +57,7 @@ public class Viewer extends Canvas implements Runnable {
     public void paintBall(Ball ball, Graphics2D g) {
         int diameter = ball.getDIAMETER();
         g.setColor(ball.getCOLOR());
-        g.fillOval(ball.getX(), ball.getY(), diameter, diameter);
+        g.fillOval(ball.getPosition().width, ball.getPosition().height, diameter, diameter);
     }
     public void paintRectangle(Graphics2D g) {
         Graphics2D gRectangle = (Graphics2D) g;

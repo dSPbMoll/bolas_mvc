@@ -98,6 +98,18 @@ public class View extends JFrame {
     // public void startViewer() {
         //viewer.startViewer();
     //}
+    public int getMinBallSpeedSliderValue() {
+        return controlPanel.getMinBallSpeedSliderValue();
+    }
+    public int getMaxBallSpeedSliderValue() {
+        return controlPanel.getMaxBallSpeedSliderValue();
+    }
+    public int getMinBallSizeSliderValue() {
+        return controlPanel.getMinBallSizeSliderValue();
+    }
+    public int getMaxBallSizeSliderValue() {
+        return controlPanel.getMaxBallSizeSliderValue();
+    }
     public void addFireButtonListener(ActionListener listener) {
         controlPanel.getFIRE_BUTTON().addActionListener(listener);
     }

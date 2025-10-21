@@ -1,5 +1,7 @@
 package model;
 
+import dto.Position;
+
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.Random;
@@ -9,55 +11,47 @@ import static java.lang.Thread.sleep;
 
 public class Ball implements Runnable {
     private Model model;
-    private int x, y, speedX, speedY;
+    private Position position;
+    private Dimension speed;
     private final int DIAMETER;
     private final Color COLOR;
 
     public Ball(Model model) {
         this.model = model;
-        x = (int) (Math.random() * model.getViewerWidth());
-        y = (int) (Math.random() * model.getViewerHeight());
-        speedX = (int) (2);
-        speedY = (int) (2);
-        DIAMETER = 15;
-        COLOR = new Color(0,0,0);
+        this.position = new Position((int) (Math.random() * model.getViewerWidth()), (int) (Math.random() * model.getViewerHeight()));
+        this.speed = calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMinBallSpeedSliderValue());
+        this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinBallSizeSliderValue(), model.getMinBallSizeSliderValue());
+        this.COLOR = generateRandomColor();
         Thread thread = new Thread(this);
         thread.start();
     }
     public Color getCOLOR() {
         return this.COLOR;
     }
-    public int getX() {
-        return x;
-    }
-    public int getY() {
-        return y;
-    }
-    public int getDIAMETER() {
-        return this.DIAMETER;
-    }
+    public Position getPosition() {return this.position;}
+    public int getDIAMETER() {return this.DIAMETER;}
 
     @Override
     public void run() {
         while (true) {
-            int attemptedX = x + speedX;
-            int attemptedY = y + speedY;
-            if (model.go(attemptedX, attemptedY)) {
-                x = attemptedX;
-                y = attemptedY;
+            Position attemptedPosition = calcNewPosition(this.position, this.speed);
 
-                if (attemptedX <= 0) {
-                    speedX = abs(speedX);
-                } else if (attemptedX + DIAMETER >= model.getViewerWidth()) {
-                    speedX = -abs(speedX);
-                } else if (attemptedY <= 0) {
-                    speedY = abs(speedY);
-                } else if (attemptedY + DIAMETER >= model.getViewerHeight()) {
-                    speedY = -abs(speedY);
+            if (model.go(attemptedPosition.width, attemptedPosition.height)) {
+                position.setSize(new Dimension(attemptedPosition.width, attemptedPosition.height));
+
+                if (attemptedPosition.width <= 0) {
+                    speed.setSize(new Dimension(abs(speed.width), speed.height));
+
+                } else if (attemptedPosition.width + DIAMETER >= model.getViewerWidth()) {
+                    speed.setSize(new Dimension(-abs(speed.width), speed.height));
+
+                } else if (attemptedPosition.height <= 0) {
+                    speed.setSize(new Dimension(speed.width, abs(speed.height)));
+
+                } else if (attemptedPosition.height + DIAMETER >= model.getViewerHeight()) {
+                    speed.setSize(new Dimension(speed.width, -abs(speed.height)));
                 }
             }
-
-
 
             try {
                 sleep(10);
@@ -65,5 +59,24 @@ public class Ball implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+    }
+    private Position calcNewPosition(Position position, Dimension speed) {
+        int attemptedX = position.width + speed.width;
+        int attemptedY = position.height + speed.height;
+        return new Position(attemptedX, attemptedY);
+    }
+    private Dimension calcRandomSpeedBetweenValues(int minSpeed, int maxSpeed) {
+        int randomXSpeed = (int) (Math.random() * ((maxSpeed - minSpeed) + 1)) + minSpeed;
+        int randomYSpeed = (int) (Math.random() * ((maxSpeed - minSpeed) + 1)) + minSpeed;
+        return new Dimension(randomXSpeed, randomYSpeed);
+    }
+    private int calcRandomDiameterBetweenValues(int minDiameter, int maxDiameter) {
+        return (int) (Math.random() * ((maxDiameter - minDiameter) + 1)) + minDiameter;
+    }
+    private Color generateRandomColor() {
+        int redValue = (int)(Math.random() * 256);
+        int greenValue = (int)(Math.random() * 256);
+        int blueValue = (int)(Math.random() * 256);
+        return new Color(redValue, greenValue, blueValue);
     }
 }

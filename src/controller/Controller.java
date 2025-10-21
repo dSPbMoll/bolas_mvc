@@ -31,4 +31,16 @@ public class Controller {
     public void addRoom(int x, int y, int width, int height) {
         model.addRoom(x, y, width, height);
     }
+    public int getMinBallSpeedSliderValue() {
+        return view.getMinBallSpeedSliderValue();
+    }
+    public int getMaxBallSpeedSliderValue() {
+        return view.getMaxBallSpeedSliderValue();
+    }
+    public int getMinBallSizeSliderValue() {
+        return view.getMinBallSizeSliderValue();
+    }
+    public int getMaxBallSizeSliderValue() {
+        return view.getMaxBallSizeSliderValue();
+    }
 }

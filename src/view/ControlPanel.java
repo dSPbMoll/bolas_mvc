@@ -43,15 +43,28 @@ public class ControlPanel extends JPanel {
         gbc.gridy = 1;
         add(FIRE_BUTTON, gbc);
 
-        this.ballSizeSlider = new RangeSlider("Ball Size", 0,100);
+        this.ballSizeSlider = new RangeSlider("Ball Size", 10,30);
         gbc.gridy = 2;
         add(ballSizeSlider, gbc);
 
-        this.ballSpeedSlider = new RangeSlider("Ball Speed", 0,100);
+        this.ballSpeedSlider = new RangeSlider("Ball Speed", 0,10);
         gbc.gridy = 3;
         add(ballSpeedSlider, gbc);
     }
     public JButton getFIRE_BUTTON() {
         return this.FIRE_BUTTON;
+    }
+
+    public int getMinBallSpeedSliderValue() {
+        return ballSpeedSlider.getMinTextFieldValue();
+    }
+    public int getMaxBallSpeedSliderValue() {
+        return ballSpeedSlider.getMaxTextFieldValue();
+    }
+    public int getMinBallSizeSliderValue() {
+        return ballSizeSlider.getMinTextFieldValue();
+    }
+    public int getMaxBallSizeSliderValue() {
+        return ballSizeSlider.getMaxTextFieldValue();
     }
 }
