@@ -1,6 +1,8 @@
 package view;
 
+import dto.Position;
 import model.Ball;
+import model.Room;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ public class Viewer extends Canvas implements Runnable {
 
     @Override
     public void run() {
-        view.addRoom(50, 50, 100, 60);
+        view.addRoom(new Position(50, 50), new Dimension(150, 120));
         while (true) {
             Graphics2D g = (Graphics2D) getGraphics();
             if (g != null) {
@@ -56,13 +58,23 @@ public class Viewer extends Canvas implements Runnable {
     }
     public void paintBall(Ball ball, Graphics2D g) {
         int diameter = ball.getDIAMETER();
+        int radius = Math.round(diameter/2);
+        Position topLeftCornerOfBall = new Position(ball.getPosition().width - radius, ball.getPosition().height - radius);
+
         g.setColor(ball.getCOLOR());
-        g.fillOval(ball.getPosition().width, ball.getPosition().height, diameter, diameter);
+
+
+        g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
     }
     public void paintRectangle(Graphics2D g) {
-        Graphics2D gRectangle = (Graphics2D) g;
-        gRectangle.setColor(Color.BLUE);
-        gRectangle.setStroke(new BasicStroke(3));
-        gRectangle.drawRect(50, 50, 100, 60);
+        ArrayList<Room> rooms = view.getAllRooms();
+
+        for (Room room : rooms) {
+            Graphics2D gRectangle = (Graphics2D) g;
+            gRectangle.setColor(Color.BLUE);
+            gRectangle.setStroke(new BasicStroke(3));
+            gRectangle.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+        }
+
     }
 }

@@ -2,7 +2,9 @@ package view;
 
 import javax.swing.*;
 import controller.Controller;
+import dto.Position;
 import model.Ball;
+import model.Room;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -83,8 +85,8 @@ public class View extends JFrame {
     public void addBall() {
         controller.addBall();
     }
-    public void addRoom(int x, int y, int width, int height) {
-        controller.addRoom(x, y, width, height);
+    public void addRoom(Position position, Dimension size) {
+        controller.addRoom(position, size);
     }
     public CopyOnWriteArrayList<Ball> getAllBalls() {
         return controller.getAllBalls();
@@ -112,5 +114,8 @@ public class View extends JFrame {
     }
     public void addFireButtonListener(ActionListener listener) {
         controlPanel.getFIRE_BUTTON().addActionListener(listener);
+    }
+    public ArrayList<Room> getAllRooms() {
+        return controller.getAllRooms();
     }
 }

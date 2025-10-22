@@ -1,10 +1,13 @@
 package model;
 
 import controller.Controller;
+import dto.Position;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static javax.swing.text.StyleConstants.Size;
 
 public class Model {
     private final Controller controller;
@@ -20,27 +23,57 @@ public class Model {
         Ball ball = new Ball(this);
         ballList.add(ball);
     }
-    public void addRoom(int x, int y, int width, int height) {
-        Room room = new Room(this, x, y, width, height);
+    public void addRoom(Position position, Dimension size) {
+        Room room = new Room(this, position, size);
         rectangleRoomList.add(room);
     }
     public CopyOnWriteArrayList<Ball> getAllBalls() {
         return ballList;
     }
-    public int getViewerWidth() {
-        return controller.getViewerWidth();
+    public int getViewerWidth() {return controller.getViewerWidth();}
+    public int getViewerHeight() {return controller.getViewerHeight();}
+    public ArrayList<Room> getAllRooms() {
+        return this.rectangleRoomList;
     }
-    public int getViewerHeight() {
-        return controller.getViewerHeight();
-    }
-    public boolean go(int attemptedX, int attemptedY) {
+
+    /**
+     * @param ball is the ball that calls the method for moving
+     * @param attemptedPosition is the position the ball who called the function is willing to take
+     * @return true -> the ball is allowed to move; false -> the movement got denied;
+     */
+    boolean collideDetection(Ball ball, Position attemptedPosition) throws InterruptedException {
         for (Room room : rectangleRoomList) {
-            if (room.go(attemptedX, attemptedY) && (room.goIn())) {
-                return false;
+
+            int attemptedX = attemptedPosition.width;
+            int attemptedY = attemptedPosition.height;
+
+            boolean attemptedPositionIsInRoom = ((attemptedX >= room.getPosition().width && attemptedX <= (room.getPosition().width + room.getSize().width))
+                    && (attemptedY >= room.getPosition().height && attemptedY <= (room.getPosition().height + room.getSize().height)));
+
+            boolean roomIsOccupied = room.getIsOccupied();
+
+            if (!attemptedPositionIsInRoom && room.getBallInside() != ball) {
+                //If the ball is moving without interacting with the room
+                return true;
+
+            } else if ((!attemptedPositionIsInRoom) && room.getBallInside() == ball) {
+                // If the ball is in a room and is attempting to exit from it
+                return room.exitingBall();
+
+            } else if (attemptedPositionIsInRoom && room.getBallInside() == ball) {
+                //If the ball is moving by inside the room
+                return true;
+
+            } else {
+                //If the ball is entering a room
+                return room.enteringBall(ball);
+
             }
         }
         return true;
     }
+
+
     public int getMinBallSpeedSliderValue() {
         return controller.getMinBallSpeedSliderValue();
     }

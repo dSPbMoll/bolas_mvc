@@ -18,7 +18,7 @@ public class Ball implements Runnable {
 
     public Ball(Model model) {
         this.model = model;
-        this.position = new Position((int) (Math.random() * model.getViewerWidth()), (int) (Math.random() * model.getViewerHeight()));
+        this.position = calcStarterRandomPosition();
         this.speed = calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMaxBallSpeedSliderValue());
         this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinBallSizeSliderValue(), model.getMaxBallSizeSliderValue());
         this.COLOR = generateRandomColor();
@@ -36,21 +36,25 @@ public class Ball implements Runnable {
         while (true) {
             Position attemptedPosition = calcNewPosition(this.position, this.speed);
 
-            if (model.go(attemptedPosition.width, attemptedPosition.height)) {
-                position.setSize(new Dimension(attemptedPosition.width, attemptedPosition.height));
+            try {
+                if (model.collideDetection(this, attemptedPosition)) {
+                    position.setSize(new Dimension(attemptedPosition.width, attemptedPosition.height));
 
-                if (attemptedPosition.width <= 0) {
-                    speed.setSize(new Dimension(abs(speed.width), speed.height));
+                    if (attemptedPosition.width <= 0) {
+                        speed.setSize(new Dimension(abs(speed.width), speed.height));
 
-                } else if (attemptedPosition.width + DIAMETER >= model.getViewerWidth()) {
-                    speed.setSize(new Dimension(-abs(speed.width), speed.height));
+                    } else if (attemptedPosition.width + DIAMETER >= model.getViewerWidth()) {
+                        speed.setSize(new Dimension(-abs(speed.width), speed.height));
 
-                } else if (attemptedPosition.height <= 0) {
-                    speed.setSize(new Dimension(speed.width, abs(speed.height)));
+                    } else if (attemptedPosition.height <= 0) {
+                        speed.setSize(new Dimension(speed.width, abs(speed.height)));
 
-                } else if (attemptedPosition.height + DIAMETER >= model.getViewerHeight()) {
-                    speed.setSize(new Dimension(speed.width, -abs(speed.height)));
+                    } else if (attemptedPosition.height + DIAMETER >= model.getViewerHeight()) {
+                        speed.setSize(new Dimension(speed.width, -abs(speed.height)));
+                    }
                 }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
 
             try {
@@ -59,6 +63,33 @@ public class Ball implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+    }
+    private Position calcStarterRandomPosition() {
+        Position starterRandomPosition = new Position(0,0);
+        boolean validStarterPosition = true;
+
+        while (validStarterPosition) {
+            starterRandomPosition = new Position((int) (Math.random() * model.getViewerWidth()), (int) (Math.random() * model.getViewerHeight()));
+
+            for (Room room : model.getAllRooms()) {
+
+                Position roomPosition = room.getPosition();
+                Dimension roomSize = room.getSize();
+                boolean validWidth = false;
+                boolean validHeight = false;
+
+                if (starterRandomPosition.width > roomPosition.width && starterRandomPosition.width < (roomPosition.width + roomSize.width)) {
+                    validWidth = true;
+                }
+                if (starterRandomPosition.height > roomPosition.height && starterRandomPosition.height < (roomPosition.height + roomSize.height)) {
+                    validHeight = true;
+                }
+                if (!(validWidth && validHeight)) {
+                    validStarterPosition = false;
+                }
+            }
+        }
+        return starterRandomPosition;
     }
     private Position calcNewPosition(Position position, Dimension speed) {
         int attemptedX = position.width + speed.width;

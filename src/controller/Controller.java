@@ -1,10 +1,12 @@
 package controller;
 
+import dto.Position;
 import model.Ball;
 import model.Room;
 import view.View;
 import model.Model;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -28,8 +30,8 @@ public class Controller {
     public int getViewerHeight() {
         return view.getViewerHeight();
     }
-    public void addRoom(int x, int y, int width, int height) {
-        model.addRoom(x, y, width, height);
+    public void addRoom(Position position, Dimension size) {
+        model.addRoom(position, size);
     }
     public int getMinBallSpeedSliderValue() {
         return view.getMinBallSpeedSliderValue();
@@ -42,5 +44,8 @@ public class Controller {
     }
     public int getMaxBallSizeSliderValue() {
         return view.getMaxBallSizeSliderValue();
+    }
+    public ArrayList<Room> getAllRooms() {
+        return model.getAllRooms();
     }
 }

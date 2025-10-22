@@ -1,46 +1,55 @@
 package model;
 
+import dto.Position;
+
 import java.awt.*;
 
 public class Room {
     private boolean isOccupied;
-    private int x;
-    private int y;
-    private int width;
-    private int height;
+    private Ball ballInside;
+    private Position position;
+    private Dimension size;
 
-    public Room(Model model, int x, int y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    public Room(Model model, Position position, Dimension size) {
+        this.isOccupied = false;
+        this.position = position;
+        this.size = size;
     }
-    public int getX() {
-        return x;
-    }
-    public int getY() {
-        return y;
-    }
-    public int getWidth() {
-        return width;
-    }
-    public int getHeight() {
-        return height;
-    }
-    public boolean isOccupied() {
+
+    public boolean getIsOccupied() {
         return isOccupied;
     }
+    public void setIsOccupied(boolean isOccupied) {this.isOccupied = isOccupied;}
+    public Ball getBallInside() {return this.ballInside;}
+    public void setBallInside(Ball ball) {this.ballInside = ball;}
+    public Position getPosition() {return this.position;}
+    public Dimension getSize() {return this.size;}
 
-    public boolean go (int attemptedX, int attemptedY) {
-        if ((attemptedX >= x && attemptedX <= x+width) && (attemptedY >= y && attemptedY <= y+height)) {
+    synchronized boolean enteringBall(Ball ball) {
+        if (this.ballInside == null) {
+            //If the room is empty
+
+            setBallInside(ball);
+            setIsOccupied(true);
             return true;
+        } else {
+            //If the room is not empty (occupied by other ball)
+
+            try {
+                while (this.isOccupied) {
+                    wait();
+                    return false;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
-        return false;
+        return true;
     }
-    synchronized public boolean goIn() {
-        if (isOccupied == true) {
-            return true;
-        }
-        return false;
+    synchronized boolean exitingBall() {
+        setBallInside(null);
+        setIsOccupied(false);
+        notifyAll();
+        return true;
     }
 }
