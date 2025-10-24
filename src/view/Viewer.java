@@ -11,9 +11,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Viewer extends Canvas implements Runnable {
     private Thread thread;
     private final View view;
+    private boolean isRunning;
+    private boolean isPaused;
 
     public Viewer(View view) {
         this.view = view;
+        this.isRunning = false;
+        this.isPaused = true;
         setBackground(Color.WHITE);
 
         thread = new Thread(this);
@@ -22,7 +26,7 @@ public class Viewer extends Canvas implements Runnable {
     @Override
     public void run() {
         view.addRoom(new Position(50, 50), new Dimension(150, 120));
-        while (true) {
+        while (isRunning) {
             Graphics2D g = (Graphics2D) getGraphics();
             if (g != null) {
                 Graphics2D g2 = (Graphics2D) g;
@@ -44,7 +48,7 @@ public class Viewer extends Canvas implements Runnable {
             }
 
             try {
-                Thread.sleep(1); // velocidad de animación
+                Thread.sleep(10); // velocidad de animación
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -55,6 +59,12 @@ public class Viewer extends Canvas implements Runnable {
     }
     public Thread getThread() {
         return this.thread;
+    }
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
+    }
+    public boolean getIsRunning() {
+        return this.isRunning;
     }
     public void paintBall(Ball ball, Graphics2D g) {
         int diameter = ball.getDIAMETER();
@@ -75,6 +85,12 @@ public class Viewer extends Canvas implements Runnable {
             gRectangle.setStroke(new BasicStroke(3));
             gRectangle.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
         }
+
+    }
+    private void clearBalls() {
+
+    }
+    private void clearRooms() {
 
     }
 }

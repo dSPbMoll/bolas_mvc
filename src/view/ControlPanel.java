@@ -67,4 +67,13 @@ public class ControlPanel extends JPanel {
     public int getMaxBallSizeSliderValue() {
         return ballSizeSlider.getMaxTextFieldValue();
     }
+    public JButton getPlayButton() {
+        return this.PLAY_BUTTON;
+    }
+    public JButton getPauseButton() {
+        return this.PAUSE_BUTTON;
+    }
+    public JButton getRestartButton() {
+        return this.RESTART_BUTTON;
+    }
 }

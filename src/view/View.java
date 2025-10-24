@@ -35,7 +35,7 @@ public class View extends JFrame {
         JPanel content = new JPanel(new GridBagLayout());
         JPanel leftPanel = new JPanel(new GridBagLayout());
 
-        viewer.getThread().start();
+        //viewer.getThread().start();
 
         // --- Left Panel (left) ---
         gbc.gridx = 0;
@@ -53,6 +53,9 @@ public class View extends JFrame {
         leftPanelGbc.weighty = 0;
         addFireButtonListener(e -> addBall());
         leftPanel.add(controlPanel, leftPanelGbc);
+
+        addPlayListener();
+        addPauseListener();
 
         //Space-filling panel
         JPanel spaceFillingPanel = new JPanel(new GridBagLayout());
@@ -117,5 +120,27 @@ public class View extends JFrame {
     }
     public ArrayList<Room> getAllRooms() {
         return controller.getAllRooms();
+    }
+
+    private void addPlayListener() {
+        controlPanel.getPlayButton().addActionListener(e -> {
+
+            Thread viewerThread = viewer.getThread();
+
+            if (viewerThread.isAlive() && viewer.getIsRunning() == false) {
+                viewer.setIsRunning(true);
+
+            } else if (!viewerThread.isAlive()) {
+                viewer.setIsRunning(true);
+                viewerThread.start();
+            }
+        });
+    }
+    private void addPauseListener() {
+        controlPanel.getPauseButton().addActionListener(e -> {
+
+            viewer.setIsRunning(false);
+
+        });
     }
 }
