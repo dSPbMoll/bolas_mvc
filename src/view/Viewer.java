@@ -13,11 +13,14 @@ public class Viewer extends Canvas implements Runnable {
     private final View view;
     private boolean isRunning;
     private boolean isPaused;
+    private long lastSecondMillisecond;
+    private int timesIteratedInLastSecond;
 
     public Viewer(View view) {
         this.view = view;
         this.isRunning = false;
         this.isPaused = true;
+
         setBackground(Color.WHITE);
 
         thread = new Thread(this);
@@ -26,7 +29,10 @@ public class Viewer extends Canvas implements Runnable {
     @Override
     public void run() {
         view.addRoom(new Position(50, 50), new Dimension(150, 120));
+        this.lastSecondMillisecond = System.currentTimeMillis();
+
         while (isRunning) {
+
             Graphics2D g = (Graphics2D) getGraphics();
             if (g != null) {
                 Graphics2D g2 = (Graphics2D) g;
@@ -48,10 +54,14 @@ public class Viewer extends Canvas implements Runnable {
             }
 
             try {
-                Thread.sleep(10); // velocidad de animación
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            timesIteratedInLastSecond += 1;
+            updateFpsIfShould();
+
         }
     }
     public void startViewer() {
@@ -86,6 +96,15 @@ public class Viewer extends Canvas implements Runnable {
             gRectangle.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
         }
 
+    }
+    private void updateFpsIfShould() {
+        if (this.lastSecondMillisecond +1000 < System.currentTimeMillis()) {
+            //If the second has changed
+            view.updateFPS(timesIteratedInLastSecond);
+            timesIteratedInLastSecond = 0;
+            this.lastSecondMillisecond = System.currentTimeMillis();
+
+        }
     }
     private void clearBalls() {
 

@@ -143,4 +143,7 @@ public class View extends JFrame {
 
         });
     }
+    public void updateFPS(int fps) {
+        this.dataPanel.updateFps(fps);
+    }
 }
