@@ -1,6 +1,7 @@
 package view;
 
 import complexComponent.RangeSlider;
+import complexComponent.SwitchButton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +12,7 @@ public class ControlPanel extends JPanel {
     private final JButton PLAY_BUTTON;
     private final JButton PAUSE_BUTTON;
     private final JButton RESTART_BUTTON;
+    private final SwitchButton AUTO_BUTTON;
     private RangeSlider ballSizeSlider;
     private RangeSlider ballSpeedSlider;
 
@@ -39,9 +41,16 @@ public class ControlPanel extends JPanel {
         reproductionPanel.add(RESTART_BUTTON);
         add(reproductionPanel, gbc);
 
+        JPanel firePanel = new JPanel();
+        firePanel.setLayout(new GridLayout(1, 2, 2, 2));
         this.FIRE_BUTTON = new JButton("Disparar Bola");
-        gbc.gridy = 1;
-        add(FIRE_BUTTON, gbc);
+        firePanel.add(FIRE_BUTTON);
+        this.AUTO_BUTTON = new SwitchButton();
+        firePanel.add(AUTO_BUTTON);
+        gbc.gridy=1;
+        firePanel.setBackground(view.getLightBlueColor());
+        add(firePanel, gbc);
+
 
         this.ballSizeSlider = new RangeSlider("Ball Size", 10,30);
         gbc.gridy = 2;
@@ -76,4 +85,5 @@ public class ControlPanel extends JPanel {
     public JButton getRestartButton() {
         return this.RESTART_BUTTON;
     }
+    public JToggleButton getAutoButton(){ return this.AUTO_BUTTON; }
 }
