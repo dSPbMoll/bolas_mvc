@@ -48,4 +48,10 @@ public class Controller {
     public ArrayList<Room> getAllRooms() {
         return model.getAllRooms();
     }
+    public void stopAllBalls(){
+        model.stopAllBalls();
+    }
+    public void setPaused(boolean paused){
+        model.setPaused(paused);
+    }
 }

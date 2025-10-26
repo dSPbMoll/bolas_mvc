@@ -38,4 +38,17 @@ public class DataPanel extends JPanel {
         add(table);
 
     }
+    public void updateFps(int fps) {
+        tableModel.setValueAt(fps, 0, 1);
+    }
+
+    public void updateRenderTime(double renderTime) {
+        tableModel.setValueAt(renderTime + " ms", 1, 1);
+    }
+
+    public void updateBallCount(int ballCount) {
+        tableModel.setValueAt(ballCount, 2, 1);
+    }
+
+
 }

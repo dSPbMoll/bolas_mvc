@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static java.lang.Thread.sleep;
+
 /**
  * This class represents the window that the final user will see and interact with
  */
@@ -20,6 +22,7 @@ public class View extends JFrame {
     private final Viewer viewer;
     private final DataPanel dataPanel;
     private final Color lightBlueColor = new Color(199, 228, 238);
+    private Timer autoTimer;
 
     public View(Controller controller) {
         this.controller = controller;
@@ -51,11 +54,13 @@ public class View extends JFrame {
         leftPanelGbc.fill = GridBagConstraints.HORIZONTAL;
         leftPanelGbc.weightx = 0;
         leftPanelGbc.weighty = 0;
-        addFireButtonListener(e -> addBall());
+        addFireButtonListener();
+        addAutoListener();
         leftPanel.add(controlPanel, leftPanelGbc);
 
         addPlayListener();
         addPauseListener();
+        addRestartListener();
 
         //Space-filling panel
         JPanel spaceFillingPanel = new JPanel(new GridBagLayout());
@@ -115,8 +120,19 @@ public class View extends JFrame {
     public int getMaxBallSizeSliderValue() {
         return controlPanel.getMaxBallSizeSliderValue();
     }
-    public void addFireButtonListener(ActionListener listener) {
-        controlPanel.getFIRE_BUTTON().addActionListener(listener);
+    public void addFireButtonListener() {
+        controlPanel.getFIRE_BUTTON().addActionListener(e->{
+            if (!viewer.getIsRunning()){
+                JOptionPane.showMessageDialog(
+                        this, "Dale a play antes de disparar una bola",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            } else{
+                addBall();
+            }
+        });
+
     }
     public ArrayList<Room> getAllRooms() {
         return controller.getAllRooms();
@@ -124,23 +140,46 @@ public class View extends JFrame {
 
     private void addPlayListener() {
         controlPanel.getPlayButton().addActionListener(e -> {
-
-            Thread viewerThread = viewer.getThread();
-
-            if (viewerThread.isAlive() && viewer.getIsRunning() == false) {
-                viewer.setIsRunning(true);
-
-            } else if (!viewerThread.isAlive()) {
-                viewer.setIsRunning(true);
-                viewerThread.start();
-            }
+            viewer.startViewer();
+            controller.setPaused(false);
         });
     }
     private void addPauseListener() {
         controlPanel.getPauseButton().addActionListener(e -> {
 
             viewer.setIsRunning(false);
-
+            controller.setPaused(true);
         });
+    }
+
+    public void updateFPS(int fps) {
+        this.dataPanel.updateFps(fps);
+    }
+    public void updateRenderTime(double renderTime) {
+        this.dataPanel.updateRenderTime(renderTime);
+    }
+    public void updateBallCount(int ballCount) {
+        this.dataPanel.updateBallCount(ballCount);
+    }
+    private void addRestartListener(){
+        controlPanel.getRestartButton().addActionListener(e-> {
+            viewer.restartViewer();
+        });
+    }
+    private void addAutoListener(){
+        controlPanel.getAutoButton().addActionListener(e->{
+            if(controlPanel.getAutoButton().isSelected()){
+                if(autoTimer!=null){
+                    autoTimer.stop();
+                }
+                autoTimer=new Timer(2000, ev-> controller.addBall());
+                autoTimer.start();
+            } else if (autoTimer!=null) {
+                autoTimer.stop();
+            }
+        });
+    }
+    public void stopAllBalls(){
+        controller.stopAllBalls();
     }
 }
