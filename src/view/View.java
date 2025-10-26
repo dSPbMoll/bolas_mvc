@@ -146,4 +146,10 @@ public class View extends JFrame {
     public void updateFPS(int fps) {
         this.dataPanel.updateFps(fps);
     }
+    public void updateRenderTime(double renderTime) {
+        this.dataPanel.updateRenderTime(renderTime);
+    }
+    public void updateBallCount(int ballCount) {
+        this.dataPanel.updateBallCount(ballCount);
+    }
 }

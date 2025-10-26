@@ -60,7 +60,7 @@ public class Viewer extends Canvas implements Runnable {
             }
 
             timesIteratedInLastSecond += 1;
-            updateFpsIfShould();
+            updateDataPanelIfShould();
 
         }
     }
@@ -97,10 +97,13 @@ public class Viewer extends Canvas implements Runnable {
         }
 
     }
-    private void updateFpsIfShould() {
+    private void updateDataPanelIfShould() {
         if (this.lastSecondMillisecond +1000 < System.currentTimeMillis()) {
             //If the second has changed
             view.updateFPS(timesIteratedInLastSecond);
+            view.updateRenderTime((double) Math.round((1000/timesIteratedInLastSecond) * 1000.0) / 1000.0);
+            view.updateBallCount(view.getAllBalls().size());
+
             timesIteratedInLastSecond = 0;
             this.lastSecondMillisecond = System.currentTimeMillis();
 
