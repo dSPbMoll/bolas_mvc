@@ -11,52 +11,54 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Viewer extends Canvas implements Runnable {
     private Thread thread;
     private final View view;
-    private boolean isRunning;
+    private volatile boolean isRunning=false;
     private boolean isPaused;
     private long lastSecondMillisecond;
     private int timesIteratedInLastSecond;
+    private volatile boolean running=false;
 
     public Viewer(View view) {
         this.view = view;
-        this.isRunning = false;
-        this.isPaused = true;
-
         setBackground(Color.WHITE);
-
-        thread = new Thread(this);
     }
 
     @Override
     public void run() {
-        view.addRoom(new Position(50, 50), new Dimension(150, 120));
         this.lastSecondMillisecond = System.currentTimeMillis();
 
-        while (isRunning) {
+        while (running) {
+            if(isRunning){
+                Graphics2D g = (Graphics2D) getGraphics();
+                if (g != null) {
+                    Graphics2D g2 = (Graphics2D) g;
 
-            Graphics2D g = (Graphics2D) getGraphics();
-            if (g != null) {
-                Graphics2D g2 = (Graphics2D) g;
+                    // Paint background (clear the frame)
+                    g2.setColor(getBackground());
+                    g2.fillRect(0, 0, getWidth(), getHeight());
 
-                // Paint background (clear the frame)
-                g2.setColor(getBackground());
-                g2.fillRect(0, 0, getWidth(), getHeight());
+                    // Draw room
+                    paintRectangle(g);
 
-                // Draw room
-                paintRectangle(g);
+                    // Draw all balls
+                    CopyOnWriteArrayList<Ball> balls = view.getAllBalls();
+                    for (Ball ball : balls) {
+                        paintBall(ball, g);
+                    }
 
-                // Draw all balls
-                CopyOnWriteArrayList<Ball> balls = view.getAllBalls();
-                for (Ball ball : balls) {
-                    paintBall(ball, g);
+                    g2.dispose();
                 }
 
-                g2.dispose();
-            }
-
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            } else{
+                try{
+                    Thread.sleep(1000);
+                } catch (InterruptedException e){
+                    break;
+                }
             }
 
             timesIteratedInLastSecond += 1;
@@ -65,7 +67,37 @@ public class Viewer extends Canvas implements Runnable {
         }
     }
     public void startViewer() {
+        if(thread!=null && thread.isAlive()){
+            stopViewer();
+        }
+        if(view.getAllRooms().isEmpty()){
+            view.addRoom(new Position(50, 50), new Dimension(150, 120));
+        }
+        running=true;
+        isRunning=true;
+        thread=new Thread(this);
         thread.start();
+    }
+
+    public void stopViewer(){
+        isRunning=false;
+        running=false;
+        if(thread!=null){
+            thread.interrupt();
+            try{
+                thread.join();
+            }catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+            }
+            thread=null;
+        }
+    }
+
+    public void pauseViewer(){
+        isRunning=false;
+    }
+    public void resumeViewer(){
+        isRunning=true;
     }
     public Thread getThread() {
         return this.thread;
@@ -91,9 +123,14 @@ public class Viewer extends Canvas implements Runnable {
 
         for (Room room : rooms) {
             Graphics2D gRectangle = (Graphics2D) g;
+            if(room.getIsOccupied()){
+                gRectangle.setColor(Color.RED);
+                gRectangle.fillRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+            }
             gRectangle.setColor(Color.BLUE);
             gRectangle.setStroke(new BasicStroke(3));
             gRectangle.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+
         }
 
     }
@@ -110,9 +147,18 @@ public class Viewer extends Canvas implements Runnable {
         }
     }
     private void clearBalls() {
-
+        view.getAllBalls().clear();
     }
     private void clearRooms() {
+        view.getAllRooms().clear();
+    }
 
+    public void restartViewer(){
+        stopViewer();
+        view.stopAllBalls();
+        clearBalls();
+        clearRooms();
+        view.addRoom(new Position(50, 50), new Dimension(150, 120));
+        startViewer();
     }
 }

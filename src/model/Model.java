@@ -13,6 +13,7 @@ public class Model {
     private final Controller controller;
     private CopyOnWriteArrayList<Ball> ballList;
     private ArrayList<Room> rectangleRoomList;
+    private volatile boolean paused=false;
 
     public Model(Controller controller) {
         this.controller = controller;
@@ -21,7 +22,19 @@ public class Model {
     }
     public void addBall() {
         Ball ball = new Ball(this);
+        ball.startThread();
         ballList.add(ball);
+    }
+    public void stopAllBalls(){
+        for (Ball b : getAllBalls()){
+            b.stopThread();
+        }
+    }
+    public boolean isPaused(){
+        return paused;
+    }
+    public void setPaused(boolean paused){
+        this.paused=paused;
     }
     public void addRoom(Position position, Dimension size) {
         Room room = new Room(this, position, size);

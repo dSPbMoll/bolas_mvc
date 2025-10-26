@@ -15,6 +15,9 @@ public class Ball implements Runnable {
     private Dimension speed;
     private final int DIAMETER;
     private final Color COLOR;
+    private volatile boolean running=true;
+    private Thread thread;
+    private final int MAX_BALL_COUNT=30;
 
     public Ball(Model model) {
         this.model = model;
@@ -22,8 +25,6 @@ public class Ball implements Runnable {
         this.speed = calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMaxBallSpeedSliderValue());
         this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinBallSizeSliderValue(), model.getMaxBallSizeSliderValue());
         this.COLOR = generateRandomColor();
-        Thread thread = new Thread(this);
-        thread.start();
     }
     public Color getCOLOR() {
         return this.COLOR;
@@ -31,44 +32,60 @@ public class Ball implements Runnable {
     public Position getPosition() {return this.position;}
     public int getDIAMETER() {return this.DIAMETER;}
 
+    public void startThread(){
+        running=true;
+        thread=new Thread(this);
+        thread.start();
+    }
+    public void stopThread(){
+        running=false;
+        if (thread!=null){
+            thread.interrupt();
+        }
+    }
+
     @Override
     public void run() {
-        while (true) {
-            Position attemptedPosition = calcNewPosition(this.position, this.speed);
-
+        while (running) {
             try {
-                if (model.collideDetection(this, attemptedPosition)) {
-                    position.setSize(new Dimension(attemptedPosition.width, attemptedPosition.height));
-
-                    if (attemptedPosition.width <= 0) {
-                        speed.setSize(new Dimension(abs(speed.width), speed.height));
-
-                    } else if (attemptedPosition.width + DIAMETER >= model.getViewerWidth()) {
-                        speed.setSize(new Dimension(-abs(speed.width), speed.height));
-
-                    } else if (attemptedPosition.height <= 0) {
-                        speed.setSize(new Dimension(speed.width, abs(speed.height)));
-
-                    } else if (attemptedPosition.height + DIAMETER >= model.getViewerHeight()) {
-                        speed.setSize(new Dimension(speed.width, -abs(speed.height)));
-                    }
+                while (model.isPaused() && running) {
+                    Thread.sleep(50);
                 }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+                Position attemptedPosition = calcNewPosition(this.position, this.speed);
 
-            try {
-                sleep(10);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                try {
+                    if (model.collideDetection(this, attemptedPosition)) {
+                        position.setSize(new Dimension(attemptedPosition.width, attemptedPosition.height));
+
+                        if (attemptedPosition.width <= 0) {
+                            speed.setSize(new Dimension(abs(speed.width), speed.height));
+
+                        } else if (attemptedPosition.width + DIAMETER >= model.getViewerWidth()) {
+                            speed.setSize(new Dimension(-abs(speed.width), speed.height));
+
+                        } else if (attemptedPosition.height <= 0) {
+                            speed.setSize(new Dimension(speed.width, abs(speed.height)));
+
+                        } else if (attemptedPosition.height + DIAMETER >= model.getViewerHeight()) {
+                            speed.setSize(new Dimension(speed.width, -abs(speed.height)));
+                        }
+                    }
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    running=false;
+                    Thread.currentThread().interrupt();
+                }
+            }catch (InterruptedException e){
+                running=false;
+                Thread.currentThread().interrupt();
             }
         }
     }
     private Position calcStarterRandomPosition() {
         Position starterRandomPosition = new Position(0,0);
-        boolean validStarterPosition = true;
+        boolean validStarterPosition = false;
 
-        while (validStarterPosition) {
+        while (!validStarterPosition) {
             starterRandomPosition = new Position((int) (Math.random() * model.getViewerWidth()), (int) (Math.random() * model.getViewerHeight()));
 
             for (Room room : model.getAllRooms()) {
@@ -78,15 +95,13 @@ public class Ball implements Runnable {
                 boolean validWidth = false;
                 boolean validHeight = false;
 
-                if (starterRandomPosition.width > roomPosition.width && starterRandomPosition.width < (roomPosition.width + roomSize.width)) {
+                if (!(starterRandomPosition.width > roomPosition.width && starterRandomPosition.width < (roomPosition.width + roomSize.width))) {
                     validWidth = true;
                 }
-                if (starterRandomPosition.height > roomPosition.height && starterRandomPosition.height < (roomPosition.height + roomSize.height)) {
+                if (!(starterRandomPosition.height > roomPosition.height && starterRandomPosition.height < (roomPosition.height + roomSize.height))) {
                     validHeight = true;
                 }
-                if (!(validWidth && validHeight)) {
-                    validStarterPosition = false;
-                }
+                validStarterPosition=(validWidth && validHeight);
             }
         }
         return starterRandomPosition;
