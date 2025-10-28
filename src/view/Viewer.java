@@ -72,6 +72,7 @@ public class Viewer extends Canvas implements Runnable {
         }
         if(view.getAllRooms().isEmpty()){
             view.addRoom(new Position(50, 50), new Dimension(150, 120));
+            view.addRoom(new Position(100, 300), new Dimension(150, 120));
         }
         running=true;
         isRunning=true;
@@ -159,6 +160,7 @@ public class Viewer extends Canvas implements Runnable {
         clearBalls();
         clearRooms();
         view.addRoom(new Position(50, 50), new Dimension(150, 120));
+        view.addRoom(new Position(100, 100), new Dimension(150, 120));
         startViewer();
     }
 }

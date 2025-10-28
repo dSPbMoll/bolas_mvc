@@ -32,6 +32,7 @@ public class Room {
             setBallInside(ball);
             setIsOccupied(true);
             return true;
+
         } else {
             //If the room is not empty (occupied by other ball)
 

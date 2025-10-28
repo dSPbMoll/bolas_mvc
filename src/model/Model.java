@@ -5,7 +5,10 @@ import dto.Position;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
 
 import static javax.swing.text.StyleConstants.Size;
 
@@ -55,35 +58,47 @@ public class Model {
      * @return true -> the ball is allowed to move; false -> the movement got denied;
      */
     boolean collideDetection(Ball ball, Position attemptedPosition) throws InterruptedException {
-        for (Room room : rectangleRoomList) {
 
-            int attemptedX = attemptedPosition.width;
-            int attemptedY = attemptedPosition.height;
+        int attemptedX = attemptedPosition.width;
+        int attemptedY = attemptedPosition.height;
+
+        Map<Room, Boolean> interactionList = new HashMap<>();
+
+        for (Room room : rectangleRoomList) {
 
             boolean attemptedPositionIsInRoom = ((attemptedX >= room.getPosition().width && attemptedX <= (room.getPosition().width + room.getSize().width))
                     && (attemptedY >= room.getPosition().height && attemptedY <= (room.getPosition().height + room.getSize().height)));
 
-            boolean roomIsOccupied = room.getIsOccupied();
-
             if (!attemptedPositionIsInRoom && room.getBallInside() != ball) {
                 //If the ball is moving without interacting with the room
-                return true;
+                //return true;
+                interactionList.put(room, true);
 
             } else if ((!attemptedPositionIsInRoom) && room.getBallInside() == ball) {
                 // If the ball is in a room and is attempting to exit from it
-                return room.exitingBall();
+                // return room.exitingBall();
+                interactionList.put(room, room.exitingBall());
 
             } else if (attemptedPositionIsInRoom && room.getBallInside() == ball) {
-                //If the ball is moving by inside the room
-                return true;
+                // If the ball is moving by inside the room
+                // return true;
+                interactionList.put(room, true);
 
             } else {
                 //If the ball is entering a room
-                return room.enteringBall(ball);
-
+                // return room.enteringBall(ball);
+                interactionList.put(room, room.enteringBall(ball));
             }
         }
-        return true;
+
+        boolean validMovement = true;
+        for (Room room : rectangleRoomList) {
+            if (!interactionList.get(room)) {
+                validMovement = false;
+            }
+        }
+
+        return validMovement;
     }
 
 
