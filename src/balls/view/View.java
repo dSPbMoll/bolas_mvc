@@ -1,13 +1,12 @@
-package view;
+package balls.view;
 
 import javax.swing.*;
-import controller.Controller;
-import dto.Position;
-import model.Ball;
-import model.Room;
+import balls.controller.Controller;
+import balls.dto.Position;
+import balls.model.Ball;
+import balls.model.Room;
 
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 

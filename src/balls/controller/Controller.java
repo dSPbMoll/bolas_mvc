@@ -1,10 +1,10 @@
-package controller;
+package balls.controller;
 
-import dto.Position;
-import model.Ball;
-import model.Room;
-import view.View;
-import model.Model;
+import balls.dto.Position;
+import balls.model.Ball;
+import balls.model.Room;
+import balls.view.View;
+import balls.model.Model;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -54,4 +54,5 @@ public class Controller {
     public void setPaused(boolean paused){
         model.setPaused(paused);
     }
+
 }

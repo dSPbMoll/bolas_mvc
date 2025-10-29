@@ -1,16 +1,13 @@
-package model;
+package balls.model;
 
-import controller.Controller;
-import dto.Position;
+import balls.controller.Controller;
+import balls.dto.Position;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.List;
-
-import static javax.swing.text.StyleConstants.Size;
 
 public class Model {
     private final Controller controller;
@@ -71,22 +68,18 @@ public class Model {
 
             if (!attemptedPositionIsInRoom && room.getBallInside() != ball) {
                 //If the ball is moving without interacting with the room
-                //return true;
                 interactionList.put(room, true);
 
             } else if ((!attemptedPositionIsInRoom) && room.getBallInside() == ball) {
                 // If the ball is in a room and is attempting to exit from it
-                // return room.exitingBall();
                 interactionList.put(room, room.exitingBall());
 
             } else if (attemptedPositionIsInRoom && room.getBallInside() == ball) {
-                // If the ball is moving by inside the room
-                // return true;
+                // If the ball is moving inside the room
                 interactionList.put(room, true);
 
             } else {
                 //If the ball is entering a room
-                // return room.enteringBall(ball);
                 interactionList.put(room, room.enteringBall(ball));
             }
         }

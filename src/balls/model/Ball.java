@@ -1,10 +1,8 @@
-package model;
+package balls.model;
 
-import dto.Position;
+import balls.dto.Position;
 
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.util.Random;
 
 import static java.lang.Math.abs;
 import static java.lang.Thread.sleep;

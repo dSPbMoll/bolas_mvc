@@ -1,6 +1,6 @@
-package model;
+package balls.model;
 
-import dto.Position;
+import balls.dto.Position;
 
 import java.awt.*;
 

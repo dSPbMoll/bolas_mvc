@@ -1,8 +1,8 @@
-package view;
+package balls.view;
 
-import dto.Position;
-import model.Ball;
-import model.Room;
+import balls.dto.Position;
+import balls.model.Ball;
+import balls.model.Room;
 
 import java.awt.*;
 import java.util.ArrayList;
