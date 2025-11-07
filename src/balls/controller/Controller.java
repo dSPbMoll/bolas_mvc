@@ -2,6 +2,7 @@ package balls.controller;
 
 import balls.dto.Position;
 import balls.model.Ball;
+import balls.model.EventType;
 import balls.model.Room;
 import balls.view.View;
 import balls.model.Model;
@@ -55,4 +56,44 @@ public class Controller {
         model.setPaused(paused);
     }
 
+    public void ballEventManager(EventType event, Room room, Ball ball) {
+        switch (event) {
+            case BALL_ENTERS_OCCUPIED_ROOM:
+                model.ballEntersOccupiedRoom(ball, room);
+                break;
+
+            case BALL_ENTERS_FREE_ROOM:
+                model.ballEntersFreeRoom(ball, room);
+                break;
+
+            case BALL_MOVES_INSIDE_ROOM:
+                model.ballMovesInsideRoom(ball, room);
+                break;
+
+            case BALL_EXITS_ROOM:
+                model.ballExitsRoom(ball, room);
+                break;
+
+        }
+    }
+    public void ballEventManager(EventType event, Ball ball) {
+        switch (event) {
+            case NORTH_LIMIT_REACHED:
+                model.northLimitBounce(ball);
+                break;
+
+            case SOUTH_LIMIT_REACHED:
+                model.southLimitBounce(ball);
+                break;
+
+            case EAST_LIMIT_REACHED:
+                model.eastLimitBounce(ball);
+                break;
+
+            case WEST_LIMIT_REACHED:
+                model.westLimitBounce(ball);
+                break;
+
+        }
+    }
 }
