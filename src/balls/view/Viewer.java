@@ -5,6 +5,7 @@ import balls.model.Ball;
 import balls.model.Room;
 
 import java.awt.*;
+import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -28,29 +29,58 @@ public class Viewer extends Canvas implements Runnable {
 
         while (running) {
             if(isRunning){
-                Graphics2D g = (Graphics2D) getGraphics();
-                if (g != null) {
-                    Graphics2D g2 = (Graphics2D) g;
-
-                    // Paint background (clear the frame)
-                    g2.setColor(getBackground());
-                    g2.fillRect(0, 0, getWidth(), getHeight());
-
-                    // Draw room
-                    paintRectangle(g);
-
-                    // Draw all balls
-                    CopyOnWriteArrayList<Ball> balls = view.getAllBalls();
-                    for (Ball ball : balls) {
-                        paintBall(ball, g);
+                BufferStrategy bs= getBufferStrategy();
+                if(bs==null){
+                    if(isDisplayable()){
+                        try{
+                            createBufferStrategy(2);
+                            bs=getBufferStrategy();
+                        }catch(IllegalStateException ise){
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException e) {
+                                break;
+                            }
+                        }
+                    } else{
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
                     }
+                Graphics g=null;
+                try{
+                    g=bs.getDrawGraphics();
+                    if(g!=null) {
+                        Graphics2D g2 = (Graphics2D) g;
 
-                    g2.dispose();
+                        // Paint background (clear the frame)
+
+                        g2.setColor(getBackground());
+                        g2.fillRect(0, 0, getWidth(), getHeight());
+
+                        // Draw room
+                        paintRectangle(g2);
+
+                        // Draw all balls
+                        CopyOnWriteArrayList<Ball> balls = view.getAllBalls();
+                        for (Ball ball : balls) {
+                            paintBall(ball, g2);
+                        }
+                    }
+                }finally {
+                    if(g!=null){
+                        g.dispose();
+                    }
+                    try{
+                        bs.show();
+                    }catch (Exception ignored){}
                 }
-
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
+            }
+                try{
+                    Thread.sleep(1000);
+                } catch (InterruptedException e){
                     break;
                 }
             } else{
@@ -91,6 +121,12 @@ public class Viewer extends Canvas implements Runnable {
                 Thread.currentThread().interrupt();
             }
             thread=null;
+        }
+        BufferStrategy bs=getBufferStrategy();
+        if(bs!=null){
+            try{
+
+            }catch (Exception ignored){}
         }
     }
 
