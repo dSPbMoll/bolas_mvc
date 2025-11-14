@@ -28,7 +28,12 @@ public class Ball implements Runnable {
         return this.COLOR;
     }
     public Position getPosition() {return this.position;}
+    public void setPosition(Position position) {
+        this.position = position;
+    }
     public int getDIAMETER() {return this.DIAMETER;}
+    public Dimension getSpeed() {return this.speed;}
+    public void setSpeed(Dimension speed) {this.speed = speed;}
 
     public void startThread(){
         running=true;
@@ -52,22 +57,7 @@ public class Ball implements Runnable {
                 Position attemptedPosition = calcNewPosition(this.position, this.speed);
 
                 try {
-                    if (model.collideDetection(this, attemptedPosition)) {
-                        position.setSize(new Dimension(attemptedPosition.width, attemptedPosition.height));
-
-                        if (attemptedPosition.width <= 0) {
-                            speed.setSize(new Dimension(abs(speed.width), speed.height));
-
-                        } else if (attemptedPosition.width + DIAMETER >= model.getViewerWidth()) {
-                            speed.setSize(new Dimension(-abs(speed.width), speed.height));
-
-                        } else if (attemptedPosition.height <= 0) {
-                            speed.setSize(new Dimension(speed.width, abs(speed.height)));
-
-                        } else if (attemptedPosition.height + DIAMETER >= model.getViewerHeight()) {
-                            speed.setSize(new Dimension(speed.width, -abs(speed.height)));
-                        }
-                    }
+                    model.processBallEvent(this, attemptedPosition);
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
                     running=false;
