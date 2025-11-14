@@ -1,7 +1,7 @@
-package view;
+package balls.view;
 
-import complexComponent.RangeSlider;
-import complexComponent.SwitchButton;
+import helpers.complexComponent.RangeSlider;
+import helpers.complexComponent.SwitchButton;
 
 import javax.swing.*;
 import java.awt.*;

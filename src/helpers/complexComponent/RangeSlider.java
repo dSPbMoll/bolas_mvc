@@ -1,8 +1,6 @@
-package complexComponent;
+package helpers.complexComponent;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 
 /**

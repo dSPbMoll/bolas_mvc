@@ -1,13 +1,12 @@
-package view;
+package balls.view;
 
 import javax.swing.*;
-import controller.Controller;
-import dto.Position;
-import model.Ball;
-import model.Room;
+import balls.controller.Controller;
+import balls.dto.Position;
+import balls.model.Ball;
+import balls.model.Room;
 
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -122,7 +121,7 @@ public class View extends JFrame {
     }
     public void addFireButtonListener() {
         controlPanel.getFIRE_BUTTON().addActionListener(e->{
-            if (!viewer.getIsRunning()){
+            if (!viewer.getRunning()){
                 JOptionPane.showMessageDialog(
                         this, "Dale a play antes de disparar una bola",
                         "Aviso",
@@ -140,15 +139,18 @@ public class View extends JFrame {
 
     private void addPlayListener() {
         controlPanel.getPlayButton().addActionListener(e -> {
-            viewer.startViewer();
-            controller.setPaused(false);
+            if (viewer.getThread() == null) {
+                viewer.startViewer();
+                controller.setPaused(false);
+            }
         });
     }
     private void addPauseListener() {
         controlPanel.getPauseButton().addActionListener(e -> {
-
-            viewer.setIsRunning(false);
-            controller.setPaused(true);
+            if (viewer.getThread() != null) {
+                viewer.pauseViewer();
+                controller.setPaused(true);
+            }
         });
     }
 

@@ -1,4 +1,4 @@
-package complexComponent;
+package helpers.complexComponent;
 
 import javax.swing.*;
 import java.awt.*;

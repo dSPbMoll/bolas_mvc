@@ -1,6 +1,6 @@
-package model;
+package balls.model;
 
-import dto.Position;
+import balls.dto.Position;
 
 import java.awt.*;
 
@@ -32,6 +32,7 @@ public class Room {
             setBallInside(ball);
             setIsOccupied(true);
             return true;
+
         } else {
             //If the room is not empty (occupied by other ball)
 

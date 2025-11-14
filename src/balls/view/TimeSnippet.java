@@ -1,4 +1,4 @@
-package view;
+package balls.view;
 
 import static java.lang.Thread.sleep;
 

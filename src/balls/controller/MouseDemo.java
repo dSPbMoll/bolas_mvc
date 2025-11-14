@@ -1,4 +1,4 @@
-package controller;
+package balls.controller;
 
 import javax.swing.*;
 import java.awt.event.*;
