@@ -1,5 +1,7 @@
 package balls.model;
 
+import balls.dto.BasicPhysicsEngine;
+import balls.dto.PhysicsEngine;
 import balls.dto.Position;
 
 import java.awt.*;
@@ -9,31 +11,44 @@ import static java.lang.Thread.sleep;
 
 public class Ball implements Runnable {
     private Model model;
-    private Position position;
-    private Dimension speed;
     private final int DIAMETER;
     private final Color COLOR;
     private volatile boolean running=true;
     private Thread thread;
-    private final int MAX_BALL_COUNT=30;
+    private PhysicsEngine physicsEngine;
 
     public Ball(Model model) {
         this.model = model;
-        this.position = calcStarterRandomPosition();
-        this.speed = calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMaxBallSpeedSliderValue());
         this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinBallSizeSliderValue(), model.getMaxBallSizeSliderValue());
         this.COLOR = generateRandomColor();
+
+        this.physicsEngine = new BasicPhysicsEngine();
+        physicsEngine.setPosition(calcStarterRandomPosition());
+        physicsEngine.setSpeed(calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMaxBallSpeedSliderValue()));
     }
+
     public Color getCOLOR() {
         return this.COLOR;
     }
-    public Position getPosition() {return this.position;}
-    public void setPosition(Position position) {
-        this.position = position;
+
+    public Dimension getPosition() {
+        return physicsEngine.getPosition();
+
     }
+
+    public void setPosition(Dimension position) {
+        physicsEngine.setPosition(position);
+    }
+
+    public void setSpeed(Dimension speed) {
+        physicsEngine.setSpeed(speed);
+    }
+
+    public Dimension getSpeed() {
+        return physicsEngine.getSpeed();
+    }
+
     public int getDIAMETER() {return this.DIAMETER;}
-    public Dimension getSpeed() {return this.speed;}
-    public void setSpeed(Dimension speed) {this.speed = speed;}
 
     public void startThread(){
         running=true;
@@ -54,15 +69,12 @@ public class Ball implements Runnable {
                 while (model.isPaused() && running) {
                     Thread.sleep(50);
                 }
-                Position attemptedPosition = calcNewPosition(this.position, this.speed);
 
-                try {
-                    model.processBallEvent(this, attemptedPosition);
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    running=false;
-                    Thread.currentThread().interrupt();
-                }
+                Dimension[] nextPhysicalValues = physicsEngine.calculateNextPhysicalValues();
+                Dimension attemptedPosition = nextPhysicalValues[0];
+                model.processBallEvent(this, attemptedPosition);
+                Thread.sleep(10);
+
             }catch (InterruptedException e){
                 running=false;
                 Thread.currentThread().interrupt();

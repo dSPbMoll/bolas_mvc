@@ -56,7 +56,7 @@ public class Model {
      * @param attemptedPosition is the position the ball who called the function is willing to take
      * @return true -> the ball is allowed to move; false -> the movement got denied;
      */
-    synchronized public void processBallEvent(Ball ball, Position attemptedPosition) throws InterruptedException {
+    synchronized public void processBallEvent(Ball ball, Dimension attemptedPosition) throws InterruptedException {
 
         int attemptedX = attemptedPosition.width;
         int attemptedY = attemptedPosition.height;
