@@ -70,21 +70,21 @@ public class Viewer extends Canvas implements Runnable {
             view.addRoom(new Position(50, 50), new Dimension(150, 120));
             view.addRoom(new Position(100, 300), new Dimension(150, 120));
         }
-        running=true;
-        thread=new Thread(this);
+        running = true;
+        thread = new Thread(this);
         thread.start();
     }
 
     public void pauseViewer(){
-        running=false;
+        running = false;
         thread.interrupt();
 
-        try{
+        try {
             thread.join();
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        thread=null;
+        thread = null;
     }
 
     public void restartViewer(){
@@ -102,7 +102,7 @@ public class Viewer extends Canvas implements Runnable {
     public void paintBall(Ball ball, Graphics2D g) {
         int diameter = ball.getDIAMETER();
         int radius = Math.round(diameter/2);
-        Position topLeftCornerOfBall = new Position(ball.getPosition().width - radius, ball.getPosition().height - radius);
+        Dimension topLeftCornerOfBall = new Dimension(ball.getPosition().width - radius, ball.getPosition().height - radius);
 
         g.setColor(ball.getCOLOR());
 
