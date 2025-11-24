@@ -18,38 +18,63 @@ public class ControlPanel extends JPanel {
 
     public ControlPanel(View view) {
         this.view = view;
+        this.FIRE_BUTTON = new JButton("Disparar Bola");
+        this.AUTO_BUTTON = new SwitchButton();
+        this.PLAY_BUTTON = new JButton("▶");
+        this.PAUSE_BUTTON = new JButton("||");
+        this.RESTART_BUTTON = new JButton("◯");
 
+        buildLayout();
+    }
+
+    // ---------------------------------- LAYOUT BUILDING ----------------------------------
+
+    private void buildLayout() {
         setLayout(new GridBagLayout());
+        setBackground(view.getLightBlueColor());
+
+        buildReproductionPanel();
+        buildFirePanel();
+        buildSliders();
+    }
+
+    private void buildReproductionPanel() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6,6,6,6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        JPanel reproductionPanel = new JPanel();
+        reproductionPanel.setLayout(new GridLayout(1,3,2,2));
+        reproductionPanel.add(PLAY_BUTTON);
+        reproductionPanel.add(PAUSE_BUTTON);
+        reproductionPanel.add(RESTART_BUTTON);
+        add(reproductionPanel, gbc);
+    }
+
+    private void buildFirePanel() {
+        JPanel firePanel = new JPanel();
+        firePanel.setLayout(new GridLayout(1, 2, 2, 2));
+        firePanel.setBackground(view.getLightBlueColor());
+        firePanel.add(FIRE_BUTTON);
+        firePanel.add(AUTO_BUTTON);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6,6,6,6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
-        setBackground(view.getLightBlueColor());
-
-        // Reproduction Panel
-        JPanel reproductionPanel = new JPanel();
-        reproductionPanel.setLayout(new GridLayout(1,3,2,2));
-        this.PLAY_BUTTON = new JButton("▶");
-        this.PAUSE_BUTTON = new JButton("||");
-        this.RESTART_BUTTON = new JButton("◯");
-        reproductionPanel.add(PLAY_BUTTON);
-        reproductionPanel.add(PAUSE_BUTTON);
-        reproductionPanel.add(RESTART_BUTTON);
-        add(reproductionPanel, gbc);
-
-        JPanel firePanel = new JPanel();
-        firePanel.setLayout(new GridLayout(1, 2, 2, 2));
-        this.FIRE_BUTTON = new JButton("Disparar Bola");
-        firePanel.add(FIRE_BUTTON);
-        this.AUTO_BUTTON = new SwitchButton();
-        firePanel.add(AUTO_BUTTON);
         gbc.gridy=1;
-        firePanel.setBackground(view.getLightBlueColor());
         add(firePanel, gbc);
+    }
+
+    private void buildSliders() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6,6,6,6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
 
         this.ballSizeSlider = new RangeSlider("Ball Size", 10,30);
         gbc.gridy = 2;
@@ -59,6 +84,9 @@ public class ControlPanel extends JPanel {
         gbc.gridy = 3;
         add(ballSpeedSlider, gbc);
     }
+
+    // ----------------------------- GETTERS & SETTERS -----------------------------
+
     public JButton getFIRE_BUTTON() {
         return this.FIRE_BUTTON;
     }
@@ -66,23 +94,30 @@ public class ControlPanel extends JPanel {
     public int getMinBallSpeedSliderValue() {
         return ballSpeedSlider.getMinTextFieldValue();
     }
+
     public int getMaxBallSpeedSliderValue() {
         return ballSpeedSlider.getMaxTextFieldValue();
     }
+
     public int getMinBallSizeSliderValue() {
         return ballSizeSlider.getMinTextFieldValue();
     }
+
     public int getMaxBallSizeSliderValue() {
         return ballSizeSlider.getMaxTextFieldValue();
     }
+
     public JButton getPlayButton() {
         return this.PLAY_BUTTON;
     }
+
     public JButton getPauseButton() {
         return this.PAUSE_BUTTON;
     }
+
     public JButton getRestartButton() {
         return this.RESTART_BUTTON;
     }
+
     public JToggleButton getAutoButton(){ return this.AUTO_BUTTON; }
 }

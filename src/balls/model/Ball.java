@@ -1,7 +1,7 @@
 package balls.model;
 
-import balls.dto.BasicPhysicsEngine;
-import balls.dto.PhysicsEngine;
+import balls.physics.BasicPhysicsEngine;
+import balls.physics.PhysicsEngine;
 import balls.dto.Position;
 
 import java.awt.*;
@@ -66,7 +66,7 @@ public class Ball implements Runnable {
     public void run() {
         while (running) {
             try {
-                while (model.isPaused() && running) {
+                while (model.getIsPaused() && running) {
                     Thread.sleep(50);
                 }
 
