@@ -13,9 +13,9 @@ public class ShipPhysicsEngine implements PhysicsEngine {
     private double gravityX = 0;
     private double gravityY = 0;
 
-    private final double motorForce = 500;   // push force by inputs
-    private final double friction = 0.90;    // friction / resistance
-    private final double maxSpeed = 500;     // speed limit
+    private final double motorForce = 300;   // push force by inputs
+    private final double friction = 0.985;    // friction / resistance
+    private final double maxSpeed = 750;     // speed limit
 
     private boolean motorsPushingUp;
     private boolean motorsPushingDown;
