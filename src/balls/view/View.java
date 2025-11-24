@@ -142,6 +142,7 @@ public class View extends JFrame {
             if (viewer.getThread() == null) {
                 viewer.startViewer();
                 controller.setPaused(false);
+                controller.startPlayerThread();
             }
         });
     }
@@ -150,7 +151,14 @@ public class View extends JFrame {
             if (viewer.getThread() != null) {
                 viewer.pauseViewer();
                 controller.setPaused(true);
+                controller.stopPlayerThread();
             }
+        });
+    }
+
+    private void addRestartListener(){
+        controlPanel.getRestartButton().addActionListener(e-> {
+            viewer.restartViewer();
         });
     }
 
@@ -163,11 +171,7 @@ public class View extends JFrame {
     public void updateBallCount(int ballCount) {
         this.dataPanel.updateBallCount(ballCount);
     }
-    private void addRestartListener(){
-        controlPanel.getRestartButton().addActionListener(e-> {
-            viewer.restartViewer();
-        });
-    }
+
     private void addAutoListener(){
         controlPanel.getAutoButton().addActionListener(e->{
             if(controlPanel.getAutoButton().isSelected()){
@@ -183,5 +187,39 @@ public class View extends JFrame {
     }
     public void stopAllBalls(){
         controller.stopAllBalls();
+    }
+
+    // -------------------------------- SHIP ACTIONS --------------------------------
+
+    public Dimension getPlayerPosition() {
+        return controller.getPlayerPosition();
+    }
+
+    public Dimension getPlayerSize() {
+        return this.controller.getPlayerSize();
+    }
+
+    public void setPlayerMovingUp(boolean b) {
+        controller.setPlayerMovingUp(b);
+    }
+
+    public void setPlayerMovingLeft(boolean b) {
+        controller.setPlayerMovingLeft(b);
+    }
+
+    public void setPlayerMovingRight(boolean b) {
+        controller.setPlayerMovingRight(b);
+    }
+
+    public void setPlayerMovingDown(boolean b) {
+        controller.setPlayerMovingDown(b);
+    }
+
+    public Dimension getCursorPositionInViewer() {
+        return viewer.getCursorPosition();
+    }
+
+    public double getPlayerRotationAngle() {
+        return controller.getPlayerRotationAngle();
     }
 }

@@ -16,6 +16,7 @@ public class Model {
     private CopyOnWriteArrayList<Ball> ballList;
     private ArrayList<Room> rectangleRoomList;
     private volatile boolean paused=false;
+    private Player player;
 
     public Model(Controller controller) {
         this.controller = controller;
@@ -186,5 +187,51 @@ public class Model {
     }
     public int getMaxBallSizeSliderValue() {
         return controller.getMaxBallSizeSliderValue();
+    }
+
+    // -------------------------------- SHIP ACTIONS --------------------------------
+
+    public Dimension getPlayerPosition() {
+        return this.player.getPostion();
+    }
+
+    public Dimension getPlayerSize() {
+        return this.player.getSize();
+    }
+
+    public void addPlayer() {
+        this.player = new Player(this);
+    }
+
+    public void startPlayerThread() {
+        this.player.startThread();
+    }
+
+    public void stopPlayerThread() {
+        this.player.stopThread();
+    }
+
+    public void setPlayerMovingUp(boolean b) {
+        player.setMovingUp(b);
+    }
+
+    public void setPlayerMovingLeft(boolean b) {
+        player.setMovingLeft(b);
+    }
+
+    public void setPlayerMovingRight(boolean b) {
+        player.setMovingRight(b);
+    }
+
+    public void setPlayerMovingDown(boolean b) {
+        player.setMovingDown(b);
+    }
+
+    public Dimension getCursorPositionInViewer() {
+        return controller.getCursorPositionInViewer();
+    }
+
+    public double getPlayerRotationAngle() {
+        return player.getRotationAngle();
     }
 }

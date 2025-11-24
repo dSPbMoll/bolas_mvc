@@ -5,17 +5,6 @@ import java.awt.*;
 public interface PhysicsEngine {
 
     /**
-     * Changes the value of the last time the object moved / attempted to move
-     * @param lastUpdateMS The moment expressed in milliseconds
-     */
-    void setLastUpdateMS(long lastUpdateMS);
-
-    /**
-     * @return The last moment the object moved / attempted to move
-     */
-    long getLastUpdateMS();
-
-    /**
      * Changes the value of Engine's location
      * @param position New position of the object
      */

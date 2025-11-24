@@ -18,6 +18,8 @@ public class Controller {
     public Controller() {
         this.model = new Model(this);
         this.view = new View(this);
+
+        this.model.addPlayer();
     }
     public void addBall() {
         model.addBall();
@@ -54,6 +56,14 @@ public class Controller {
     }
     public void setPaused(boolean paused){
         model.setPaused(paused);
+    }
+
+    public void startPlayerThread() {
+        model.startPlayerThread();
+    }
+
+    public void stopPlayerThread() {
+        model.stopPlayerThread();
     }
 
     public void ballEventManager(EventType event, Room room, Ball ball) {
@@ -95,5 +105,39 @@ public class Controller {
                 break;
 
         }
+    }
+
+    // -------------------------------- SHIP ACTIONS --------------------------------
+
+    public Dimension getPlayerPosition() {
+        return model.getPlayerPosition();
+    }
+
+    public Dimension getPlayerSize() {
+        return this.model.getPlayerSize();
+    }
+
+    public void setPlayerMovingUp(boolean b) {
+        model.setPlayerMovingUp(b);
+    }
+
+    public void setPlayerMovingLeft(boolean b) {
+        model.setPlayerMovingLeft(b);
+    }
+
+    public void setPlayerMovingRight(boolean b) {
+        model.setPlayerMovingRight(b);
+    }
+
+    public void setPlayerMovingDown(boolean b) {
+        model.setPlayerMovingDown(b);
+    }
+
+    public Dimension getCursorPositionInViewer() {
+        return view.getCursorPositionInViewer();
+    }
+
+    public double getPlayerRotationAngle() {
+        return model.getPlayerRotationAngle();
     }
 }

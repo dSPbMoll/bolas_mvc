@@ -5,6 +5,7 @@ import balls.model.Ball;
 import balls.model.Room;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,11 +17,17 @@ public class Viewer extends Canvas implements Runnable {
     private int timesIteratedInLastSecond;
     private volatile boolean running=false;
     private BufferStrategy bufferStrategy;
+    private Dimension cursorPosition;
 
     public Viewer(View view) {
         this.view = view;
         setBackground(Color.WHITE);
         setIgnoreRepaint(true);
+
+        addShipMovementListener(this);
+        addMouseMovementListener(this);
+        addMouseClickListener(this);
+        this.cursorPosition = new Dimension(0, 0);
     }
 
     @Override
@@ -49,6 +56,9 @@ public class Viewer extends Canvas implements Runnable {
                     for (Ball ball : balls) {
                         paintBall(ball, g2);
                     }
+
+                    // Draw all players
+                    paintPlayer(g2);
                 }
             } catch (Exception ignored) {
             } finally {
@@ -64,6 +74,93 @@ public class Viewer extends Canvas implements Runnable {
             updateDataPanelIfShould();
         }
     }
+
+    private void addShipMovementListener(Viewer viewer) {
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (!viewer.running) return;
+
+                switch (e.getKeyCode()) {
+                    case 87: // W
+                        view.setPlayerMovingUp(true);
+                        break;
+                    case 65: // A
+                        view.setPlayerMovingLeft(true);
+                        break;
+                    case 83: // S
+                        view.setPlayerMovingDown(true);
+                        break;
+                    case 68: // D
+                        view.setPlayerMovingRight(true);
+                        break;
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (!viewer.running) return;
+
+                switch (e.getKeyCode()) {
+                    case 87: // W
+                        view.setPlayerMovingUp(false);
+                        break;
+                    case 65: // A
+                        view.setPlayerMovingLeft(false);
+                        break;
+                    case 83: // S
+                        view.setPlayerMovingDown(false);
+                        break;
+                    case 68: // D
+                        view.setPlayerMovingRight(false);
+                        break;
+                }
+            }
+            @Override
+            public void keyTyped(KeyEvent e) {}
+        });
+    }
+
+    private void addMouseMovementListener(Viewer viewer) {
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!viewer.running) return;
+
+                int x = e.getX();
+                int y = e.getY();
+
+                Dimension mouseP = new Dimension(x, y);
+                viewer.setCursorPosition(mouseP);
+                //view.calcPlayerRotation(mouseP);
+
+            }
+        });
+    }
+
+    private void addMouseClickListener(Viewer viewer) {
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!viewer.running) return;
+                System.out.println("Click en: (" + e.getX() + ", " + e.getY() + ")");
+                System.out.println("Botón: " + e.getButton());
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (!viewer.running) return;
+                System.out.println("Presionado en: (" + e.getX() + ", " + e.getY() + ")");
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (!viewer.running) return;
+                System.out.println("Soltado en: (" + e.getX() + ", " + e.getY() + ")");
+            }
+        });
+
+    }
+
     public void startViewer() {
 
         if(view.getAllRooms().isEmpty()){
@@ -99,17 +196,59 @@ public class Viewer extends Canvas implements Runnable {
         return this.thread;
     }
 
-    public void paintBall(Ball ball, Graphics2D g) {
+    public Dimension getCursorPosition() {
+        return this.cursorPosition;
+    }
+
+    public void setCursorPosition(Dimension postion) {
+        this.cursorPosition = postion;
+    }
+
+    private void paintBall(Ball ball, Graphics2D g) {
         int diameter = ball.getDIAMETER();
-        int radius = Math.round(diameter/2);
-        Dimension topLeftCornerOfBall = new Dimension(ball.getPosition().width - radius, ball.getPosition().height - radius);
+        int radius = Math.round((float) diameter /2);
+        Dimension topLeftCornerOfBall = new Dimension((int)ball.getPosition().getWidth() - radius, (int)ball.getPosition().getHeight() - radius);
 
         g.setColor(ball.getCOLOR());
 
 
         g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
     }
-    public void paintRectangle(Graphics2D g) {
+
+    private void paintPlayer(Graphics2D g) {
+        // Posición de la nave
+        int px = view.getPlayerPosition().width;
+        int py = view.getPlayerPosition().height;
+
+        // Tamaño de la nave
+        int w = view.getPlayerSize().width;
+        int h = view.getPlayerSize().height;
+
+        //Calculate rotation angle for the player
+        double rotation = view.getPlayerRotationAngle() + Math.toRadians(90);
+
+        // Guardar el estado de g
+        Graphics2D g2 = (Graphics2D) g.create();
+
+        // Rotar alrededor del centro de la nave
+        g2.rotate(rotation, px, py);
+
+        // Dibujar la nave centrada en su posición
+        int[] xPoints = {px, px + w / 2, px, px - w / 2};
+        int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
+
+        g2.setColor(Color.GREEN);
+        g2.fillPolygon(xPoints, yPoints, 4);
+
+        g2.setColor(Color.RED);
+        g2.fillRect(px, py, 1, 1);
+
+        g2.dispose();
+    }
+
+
+
+    private void paintRectangle(Graphics2D g) {
         ArrayList<Room> rooms = view.getAllRooms();
 
         for (Room room : rooms) {
@@ -129,7 +268,7 @@ public class Viewer extends Canvas implements Runnable {
         if (this.lastSecondMillisecond +1000 < System.currentTimeMillis()) {
             //If the second has changed
             view.updateFPS(timesIteratedInLastSecond);
-            view.updateRenderTime((double) Math.round((1000/timesIteratedInLastSecond) * 1000.0) / 1000.0);
+            view.updateRenderTime((double) Math.round(((double) 1000 /timesIteratedInLastSecond) * 1000.0) / 1000.0);
             view.updateBallCount(view.getAllBalls().size());
 
             timesIteratedInLastSecond = 0;
@@ -147,4 +286,6 @@ public class Viewer extends Canvas implements Runnable {
     public boolean getRunning() {
         return running;
     }
+
+
 }
