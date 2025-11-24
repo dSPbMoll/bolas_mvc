@@ -51,7 +51,6 @@ public class ControlPanel extends JPanel {
         firePanel.setBackground(view.getLightBlueColor());
         add(firePanel, gbc);
 
-
         this.ballSizeSlider = new RangeSlider("Ball Size", 10,30);
         gbc.gridy = 2;
         add(ballSizeSlider, gbc);
