@@ -27,40 +27,7 @@ public class Ball implements Runnable {
         physicsEngine.setSpeed(calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMaxBallSpeedSliderValue()));
     }
 
-    public Color getCOLOR() {
-        return this.COLOR;
-    }
-
-    public Dimension getPosition() {
-        return physicsEngine.getPosition();
-
-    }
-
-    public void setPosition(Dimension position) {
-        physicsEngine.setPosition(position);
-    }
-
-    public void setSpeed(Dimension speed) {
-        physicsEngine.setSpeed(speed);
-    }
-
-    public Dimension getSpeed() {
-        return physicsEngine.getSpeed();
-    }
-
-    public int getDIAMETER() {return this.DIAMETER;}
-
-    public void startThread(){
-        running=true;
-        thread=new Thread(this);
-        thread.start();
-    }
-    public void stopThread(){
-        running=false;
-        if (thread!=null){
-            thread.interrupt();
-        }
-    }
+    // -------------------------------- THREAD --------------------------------
 
     @Override
     public void run() {
@@ -81,6 +48,44 @@ public class Ball implements Runnable {
             }
         }
     }
+
+    public void startThread(){
+        running=true;
+        thread=new Thread(this);
+        thread.start();
+    }
+
+    public void stopThread(){
+        running=false;
+        if (thread!=null){
+            thread.interrupt();
+        }
+    }
+
+    // -------------------------------- GETTERS & SETTERS --------------------------------
+
+    public Color getCOLOR() {
+        return this.COLOR;
+    }
+
+    public int getDIAMETER() {return this.DIAMETER;}
+
+    // -------------------------------- LINKING METHODS --------------------------------
+
+    public Dimension getPosition() {
+        return physicsEngine.getPosition();
+    }
+
+    public void setPosition(Dimension position) {
+        physicsEngine.setPosition(position);
+    }
+
+    public Dimension getSpeed() {
+        return physicsEngine.getSpeed();
+    }
+
+    // ------------------------------- CALCULATION METHODS -------------------------------
+
     private Position calcStarterRandomPosition() {
         Position starterRandomPosition = new Position(0,0);
         boolean validStarterPosition = false;
@@ -106,19 +111,17 @@ public class Ball implements Runnable {
         }
         return starterRandomPosition;
     }
-    private Position calcNewPosition(Position position, Dimension speed) {
-        int attemptedX = position.width + speed.width;
-        int attemptedY = position.height + speed.height;
-        return new Position(attemptedX, attemptedY);
-    }
+
     private Dimension calcRandomSpeedBetweenValues(int minSpeed, int maxSpeed) {
         int randomXSpeed = (int) (Math.random() * ((maxSpeed - minSpeed) + 1)) + minSpeed;
         int randomYSpeed = (int) (Math.random() * ((maxSpeed - minSpeed) + 1)) + minSpeed;
         return new Dimension(randomXSpeed, randomYSpeed);
     }
+
     private int calcRandomDiameterBetweenValues(int minDiameter, int maxDiameter) {
         return (int) (Math.random() * ((maxDiameter - minDiameter) + 1)) + minDiameter;
     }
+
     private Color generateRandomColor() {
         int redValue = (int)(Math.random() * 256);
         int greenValue = (int)(Math.random() * 256);
