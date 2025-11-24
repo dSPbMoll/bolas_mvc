@@ -1,4 +1,4 @@
-package balls.dto;
+package balls.physics;
 
 import java.awt.*;
 

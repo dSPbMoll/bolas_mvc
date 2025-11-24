@@ -21,50 +21,8 @@ public class Controller {
 
         this.model.addPlayer();
     }
-    public void addBall() {
-        model.addBall();
-    }
-    public CopyOnWriteArrayList<Ball> getAllBalls() {
-        return model.getAllBalls();
-    }
-    public int getViewerWidth() {
-        return view.getViewerWidth();
-    }
-    public int getViewerHeight() {
-        return view.getViewerHeight();
-    }
-    public void addRoom(Position position, Dimension size) {
-        model.addRoom(position, size);
-    }
-    public int getMinBallSpeedSliderValue() {
-        return view.getMinBallSpeedSliderValue();
-    }
-    public int getMaxBallSpeedSliderValue() {
-        return view.getMaxBallSpeedSliderValue();
-    }
-    public int getMinBallSizeSliderValue() {
-        return view.getMinBallSizeSliderValue();
-    }
-    public int getMaxBallSizeSliderValue() {
-        return view.getMaxBallSizeSliderValue();
-    }
-    public ArrayList<Room> getAllRooms() {
-        return model.getAllRooms();
-    }
-    public void stopAllBalls(){
-        model.stopAllBalls();
-    }
-    public void setPaused(boolean paused){
-        model.setPaused(paused);
-    }
 
-    public void startPlayerThread() {
-        model.startPlayerThread();
-    }
-
-    public void stopPlayerThread() {
-        model.stopPlayerThread();
-    }
+    // ------------------------------- MODEL EVENTS MANAGING -------------------------------
 
     public void ballEventManager(EventType event, Room room, Ball ball) {
         switch (event) {
@@ -86,6 +44,7 @@ public class Controller {
 
         }
     }
+
     public void ballEventManager(EventType event, Ball ball) {
         switch (event) {
             case NORTH_LIMIT_REACHED:
@@ -107,7 +66,54 @@ public class Controller {
         }
     }
 
-    // -------------------------------- SHIP ACTIONS --------------------------------
+    // ------------------------------------- GETTERS & SETTERS -------------------------------------
+
+    public void setPaused(boolean paused){
+        model.setIsPaused(paused);
+    }
+
+    // ------------------------------------- LINKING METHODS -------------------------------------
+    // ------------- BALL
+
+    public void addBall() {
+        model.addBall();
+    }
+
+    public ArrayList<Ball> getAllBalls() {
+        return model.getAllBalls();
+    }
+
+    public void stopAllBalls(){
+        model.stopAllBalls();
+    }
+
+    public int getMinBallSpeedSliderValue() {
+        return view.getMinBallSpeedSliderValue();
+    }
+
+    public int getMaxBallSpeedSliderValue() {
+        return view.getMaxBallSpeedSliderValue();
+    }
+
+    public int getMinBallSizeSliderValue() {
+        return view.getMinBallSizeSliderValue();
+    }
+
+    public int getMaxBallSizeSliderValue() {
+        return view.getMaxBallSizeSliderValue();
+    }
+
+    // ------------ ROOM
+
+    public void addRoom(Position position, Dimension size) {
+        model.addRoom(position, size);
+    }
+
+    public ArrayList<Room> getAllRooms() {
+        return model.getAllRooms();
+    }
+
+    // ------------- PLAYER
 
     public Dimension getPlayerPosition() {
         return model.getPlayerPosition();
@@ -139,5 +145,23 @@ public class Controller {
 
     public double getPlayerRotationAngle() {
         return model.getPlayerRotationAngle();
+    }
+
+    public void startPlayerThread() {
+        model.startPlayerThread();
+    }
+
+    public void stopPlayerThread() {
+        model.stopPlayerThread();
+    }
+
+    // --------- OTHER
+
+    public int getViewerWidth() {
+        return view.getViewerWidth();
+    }
+
+    public int getViewerHeight() {
+        return view.getViewerHeight();
     }
 }

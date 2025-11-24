@@ -29,96 +29,79 @@ public class View extends JFrame {
         this.viewer = new Viewer(this);
         this.dataPanel = new DataPanel(this);
 
+        buildWindow();
+
+        viewer.setFocusable(true);
+        viewer.requestFocusInWindow();
+
+    }
+
+    // ---------------------------------- WINDOW BUILDING ----------------------------------
+
+    private void buildWindow() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800,600);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        GridBagConstraints leftPanelGbc = new GridBagConstraints();
-        JPanel content = new JPanel(new GridBagLayout());
-        JPanel leftPanel = new JPanel(new GridBagLayout());
+        Container content = this.getContentPane();
+        content.setLayout(new GridBagLayout());
 
-        //viewer.getThread().start();
+        buildLeftPanel(content);
+        buildViewer(content);
 
-        // --- Left Panel (left) ---
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 0;
-        gbc.weighty = 1;
-        leftPanel.setBackground(getLightBlueColor());
-
-        // --- Control Panel (top-left) ---
-        leftPanelGbc.gridx = 0;
-        leftPanelGbc.gridy = 0;
-        leftPanelGbc.fill = GridBagConstraints.HORIZONTAL;
-        leftPanelGbc.weightx = 0;
-        leftPanelGbc.weighty = 0;
-        addFireButtonListener();
-        addAutoListener();
-        leftPanel.add(controlPanel, leftPanelGbc);
-
-        addPlayListener();
-        addPauseListener();
-        addRestartListener();
-
-        //Space-filling panel
-        JPanel spaceFillingPanel = new JPanel(new GridBagLayout());
-        leftPanelGbc.gridy = 1;
-        leftPanelGbc.weighty = 1;
-        leftPanelGbc.fill = GridBagConstraints.VERTICAL;
-        leftPanel.add(spaceFillingPanel, leftPanelGbc);
-
-        // --- Data Panel (bot-left) ---
-        leftPanelGbc.gridy = 2;
-        leftPanelGbc.weighty = 0;
-        leftPanelGbc.fill = GridBagConstraints.HORIZONTAL;
-        leftPanel.add(dataPanel, leftPanelGbc);
-
-        content.add(leftPanel, gbc);
-
-        // --- Viewer (right) ---
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 3.0;
-        content.add(viewer, gbc);
-
-        add(content);
         setLocationRelativeTo(null);
         setVisible(true);
     }
-    public Color getLightBlueColor() {
-        return this.lightBlueColor;
+
+    private void buildLeftPanel(Container content) {
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+        leftPanel.setBackground(getLightBlueColor());
+
+        buildControlPanel(leftPanel);
+        buildDataPanel(leftPanel);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.weightx = 0;
+        gbc.weighty = 1;
+        content.add(leftPanel, gbc);
     }
-    public void addBall() {
-        controller.addBall();
+
+    private void buildControlPanel(JPanel lp) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weighty = 1;
+        lp.add(controlPanel, gbc);
+
+        addFireButtonListener();
+        addAutoListener();
+        addPlayListener();
+        addPauseListener();
+        addRestartListener();
     }
-    public void addRoom(Position position, Dimension size) {
-        controller.addRoom(position, size);
+
+    private void buildDataPanel(JPanel lp) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = 1;
+        gbc.weighty = 0;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        lp.add(dataPanel, gbc);
     }
-    public CopyOnWriteArrayList<Ball> getAllBalls() {
-        return controller.getAllBalls();
+
+    private void buildViewer(Container content) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 3.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        content.add(viewer, gbc);
     }
-    public int getViewerWidth() {
-        return viewer.getWidth();
-    }
-    public int getViewerHeight() {
-        return viewer.getHeight();
-    }
-    // public void startViewer() {
-        //viewer.startViewer();
-    //}
-    public int getMinBallSpeedSliderValue() {
-        return controlPanel.getMinBallSpeedSliderValue();
-    }
-    public int getMaxBallSpeedSliderValue() {
-        return controlPanel.getMaxBallSpeedSliderValue();
-    }
-    public int getMinBallSizeSliderValue() {
-        return controlPanel.getMinBallSizeSliderValue();
-    }
-    public int getMaxBallSizeSliderValue() {
-        return controlPanel.getMaxBallSizeSliderValue();
-    }
+
+    // ---------------------------------- LISTENERS ----------------------------------
+
     public void addFireButtonListener() {
         controlPanel.getFIRE_BUTTON().addActionListener(e->{
             if (!viewer.getRunning()){
@@ -132,44 +115,6 @@ public class View extends JFrame {
             }
         });
 
-    }
-    public ArrayList<Room> getAllRooms() {
-        return controller.getAllRooms();
-    }
-
-    private void addPlayListener() {
-        controlPanel.getPlayButton().addActionListener(e -> {
-            if (viewer.getThread() == null) {
-                viewer.startViewer();
-                controller.setPaused(false);
-                controller.startPlayerThread();
-            }
-        });
-    }
-    private void addPauseListener() {
-        controlPanel.getPauseButton().addActionListener(e -> {
-            if (viewer.getThread() != null) {
-                viewer.pauseViewer();
-                controller.setPaused(true);
-                controller.stopPlayerThread();
-            }
-        });
-    }
-
-    private void addRestartListener(){
-        controlPanel.getRestartButton().addActionListener(e-> {
-            viewer.restartViewer();
-        });
-    }
-
-    public void updateFPS(int fps) {
-        this.dataPanel.updateFps(fps);
-    }
-    public void updateRenderTime(double renderTime) {
-        this.dataPanel.updateRenderTime(renderTime);
-    }
-    public void updateBallCount(int ballCount) {
-        this.dataPanel.updateBallCount(ballCount);
     }
 
     private void addAutoListener(){
@@ -185,11 +130,103 @@ public class View extends JFrame {
             }
         });
     }
+
+    private void addPlayListener() {
+        controlPanel.getPlayButton().addActionListener(e -> {
+            if (viewer.getThread() == null) {
+                viewer.startViewer();
+                controller.setPaused(false);
+                controller.startPlayerThread();
+            }
+        });
+    }
+
+    private void addPauseListener() {
+        controlPanel.getPauseButton().addActionListener(e -> {
+            if (viewer.getThread() != null) {
+                viewer.pauseViewer();
+                controller.setPaused(true);
+                controller.stopPlayerThread();
+            }
+        });
+    }
+
+    private void addRestartListener(){
+        controlPanel.getRestartButton().addActionListener(e-> {
+            stopAllBalls();
+            getAllBalls().clear();
+            getAllRooms().clear();
+            viewer.restartViewer();
+        });
+    }
+
+    // ---------------------------------- GETTERS & SETTERS ----------------------------------
+
+    public Color getLightBlueColor() {
+        return this.lightBlueColor;
+    }
+
+    // ---------------------------------- LINKING METHODS ----------------------------------
+
+    public void addBall() {
+        controller.addBall();
+    }
+
+    public void addRoom(Position position, Dimension size) {
+        controller.addRoom(position, size);
+    }
+
+    public ArrayList<Ball> getAllBalls() {
+        return controller.getAllBalls();
+    }
+
+    public int getViewerWidth() {
+        return viewer.getWidth();
+    }
+
+    public int getViewerHeight() {
+        return viewer.getHeight();
+    }
+
+    public int getMinBallSpeedSliderValue() {
+        return controlPanel.getMinBallSpeedSliderValue();
+    }
+
+    public int getMaxBallSpeedSliderValue() {
+        return controlPanel.getMaxBallSpeedSliderValue();
+    }
+
+    public int getMinBallSizeSliderValue() {
+        return controlPanel.getMinBallSizeSliderValue();
+    }
+
+    public int getMaxBallSizeSliderValue() {
+        return controlPanel.getMaxBallSizeSliderValue();
+    }
+
+    public ArrayList<Room> getAllRooms() {
+        return controller.getAllRooms();
+    }
+
+    // ------------- DATA PANEL
+
+    public void updateFPS(int fps) {
+        this.dataPanel.updateFps(fps);
+    }
+
+    public void updateRenderTime(double renderTime) {
+        this.dataPanel.updateRenderTime(renderTime);
+    }
+
+    public void updateBallCount(int ballCount) {
+        this.dataPanel.updateBallCount(ballCount);
+    }
+
     public void stopAllBalls(){
         controller.stopAllBalls();
     }
 
-    // -------------------------------- SHIP ACTIONS --------------------------------
+    // ------------- PLAYER
 
     public Dimension getPlayerPosition() {
         return controller.getPlayerPosition();

@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Viewer extends Canvas implements Runnable {
     private Thread thread;
@@ -30,15 +29,18 @@ public class Viewer extends Canvas implements Runnable {
         this.cursorPosition = new Dimension(0, 0);
     }
 
+    // ---------------------------------------- VIEWER WORKING LOGIC ----------------------------------------
+    // ------------ CANVAS PAINTING
+
     @Override
     public void run() {
         this.lastSecondMillisecond = System.currentTimeMillis();
-        while(getBufferStrategy()==null){
+        while(getBufferStrategy() == null){
             createBufferStrategy(2);
             bufferStrategy = getBufferStrategy();
         }
         while (running) {
-            Graphics g=null;
+            Graphics g = null;
             try {
                 g = bufferStrategy.getDrawGraphics();
                 if(g!=null) {
@@ -52,15 +54,17 @@ public class Viewer extends Canvas implements Runnable {
                     paintRectangle(g2);
 
                     // Draw all balls
-                    CopyOnWriteArrayList<Ball> balls = view.getAllBalls();
-                    for (Ball ball : balls) {
-                        paintBall(ball, g2);
+                    synchronized (view.getAllBalls()) {
+                        for (Ball ball : view.getAllBalls()) {
+                            paintBall(ball, g2);
+                        }
                     }
 
                     // Draw all players
                     paintPlayer(g2);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                System.err.println(e);
             } finally {
                 if (g != null) g.dispose();
                 bufferStrategy.show();
@@ -74,6 +78,79 @@ public class Viewer extends Canvas implements Runnable {
             updateDataPanelIfShould();
         }
     }
+
+    private void paintBall(Ball ball, Graphics2D g) {
+        int diameter = ball.getDIAMETER();
+        int radius = Math.round((float) diameter /2);
+        Dimension topLeftCornerOfBall = new Dimension((int)ball.getPosition().getWidth() - radius, (int)ball.getPosition().getHeight() - radius);
+
+        g.setColor(ball.getCOLOR());
+
+
+        g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
+    }
+
+    private void paintPlayer(Graphics2D g) {
+        // Ship position
+        int px = view.getPlayerPosition().width;
+        int py = view.getPlayerPosition().height;
+
+        // Ship size
+        int w = view.getPlayerSize().width;
+        int h = view.getPlayerSize().height;
+
+        //Calculate rotation angle for the player
+        double rotation = view.getPlayerRotationAngle() + Math.toRadians(90);
+
+        // Keep g status for painting
+        Graphics2D g2 = (Graphics2D) g.create();
+
+        // Rotar arround the center of the ship
+        g2.rotate(rotation, px, py);
+
+        // Draw the ship centered in its position
+        int[] xPoints = {px, px + w / 2, px, px - w / 2};
+        int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
+
+        g2.setColor(Color.GREEN);
+        g2.fillPolygon(xPoints, yPoints, 4);
+
+        g2.dispose();
+    }
+
+    private void paintRectangle(Graphics2D g) {
+        ArrayList<Room> rooms = view.getAllRooms();
+
+        for (Room room : rooms) {
+            Graphics2D g2 = (Graphics2D) g;
+            if (room.getIsOccupied()) {
+                g2.setColor(Color.RED);
+                g2.fillRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+            }
+            g2.setColor(Color.BLUE);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+
+        }
+
+    }
+
+    // ----------- DATA PANEL UPDATE
+
+    private void updateDataPanelIfShould() {
+        if (this.lastSecondMillisecond +1000 < System.currentTimeMillis()) {
+            //If the second has changed
+            view.updateFPS(timesIteratedInLastSecond);
+            view.updateRenderTime((double) Math.round(((double) 1000 /timesIteratedInLastSecond) * 1000.0) / 1000.0);
+            view.updateBallCount(view.getAllBalls().size());
+
+            timesIteratedInLastSecond = 0;
+            this.lastSecondMillisecond = System.currentTimeMillis();
+
+        }
+    }
+
+    // ----------------------------------- MOUSE & KEYBOARD LISTENERS -----------------------------------
 
     private void addShipMovementListener(Viewer viewer) {
         this.addKeyListener(new KeyAdapter() {
@@ -124,14 +201,14 @@ public class Viewer extends Canvas implements Runnable {
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (!viewer.running) return;
+            if (!viewer.running) return;
 
-                int x = e.getX();
-                int y = e.getY();
+            int x = e.getX();
+            int y = e.getY();
 
-                Dimension mouseP = new Dimension(x, y);
-                viewer.setCursorPosition(mouseP);
-                //view.calcPlayerRotation(mouseP);
+            Dimension mouseP = new Dimension(x, y);
+            viewer.setCursorPosition(mouseP);
+            //view.calcPlayerRotation(mouseP);
 
             }
         });
@@ -161,8 +238,9 @@ public class Viewer extends Canvas implements Runnable {
 
     }
 
-    public void startViewer() {
+    // -------------------------------- VIEWER STATUS MODIFIERS --------------------------------
 
+    public void startViewer() {
         if(view.getAllRooms().isEmpty()){
             view.addRoom(new Position(50, 50), new Dimension(150, 120));
             view.addRoom(new Position(100, 300), new Dimension(150, 120));
@@ -185,12 +263,11 @@ public class Viewer extends Canvas implements Runnable {
     }
 
     public void restartViewer(){
-        view.stopAllBalls();
-        clearBalls();
-        clearRooms();
         pauseViewer();
         startViewer();
     }
+
+    // ------------------------------------- GETTERS & SETTERS -------------------------------------
 
     public Thread getThread() {
         return this.thread;
@@ -204,84 +281,7 @@ public class Viewer extends Canvas implements Runnable {
         this.cursorPosition = postion;
     }
 
-    private void paintBall(Ball ball, Graphics2D g) {
-        int diameter = ball.getDIAMETER();
-        int radius = Math.round((float) diameter /2);
-        Dimension topLeftCornerOfBall = new Dimension((int)ball.getPosition().getWidth() - radius, (int)ball.getPosition().getHeight() - radius);
-
-        g.setColor(ball.getCOLOR());
-
-
-        g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
-    }
-
-    private void paintPlayer(Graphics2D g) {
-        // Posición de la nave
-        int px = view.getPlayerPosition().width;
-        int py = view.getPlayerPosition().height;
-
-        // Tamaño de la nave
-        int w = view.getPlayerSize().width;
-        int h = view.getPlayerSize().height;
-
-        //Calculate rotation angle for the player
-        double rotation = view.getPlayerRotationAngle() + Math.toRadians(90);
-
-        // Guardar el estado de g
-        Graphics2D g2 = (Graphics2D) g.create();
-
-        // Rotar alrededor del centro de la nave
-        g2.rotate(rotation, px, py);
-
-        // Dibujar la nave centrada en su posición
-        int[] xPoints = {px, px + w / 2, px, px - w / 2};
-        int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
-
-        g2.setColor(Color.GREEN);
-        g2.fillPolygon(xPoints, yPoints, 4);
-
-        g2.setColor(Color.RED);
-        g2.fillRect(px, py, 1, 1);
-
-        g2.dispose();
-    }
-
-
-
-    private void paintRectangle(Graphics2D g) {
-        ArrayList<Room> rooms = view.getAllRooms();
-
-        for (Room room : rooms) {
-            Graphics2D gRectangle = (Graphics2D) g;
-            if(room.getIsOccupied()){
-                gRectangle.setColor(Color.RED);
-                gRectangle.fillRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
-            }
-            gRectangle.setColor(Color.BLUE);
-            gRectangle.setStroke(new BasicStroke(3));
-            gRectangle.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
-
-        }
-
-    }
-    private void updateDataPanelIfShould() {
-        if (this.lastSecondMillisecond +1000 < System.currentTimeMillis()) {
-            //If the second has changed
-            view.updateFPS(timesIteratedInLastSecond);
-            view.updateRenderTime((double) Math.round(((double) 1000 /timesIteratedInLastSecond) * 1000.0) / 1000.0);
-            view.updateBallCount(view.getAllBalls().size());
-
-            timesIteratedInLastSecond = 0;
-            this.lastSecondMillisecond = System.currentTimeMillis();
-
-        }
-    }
-    private void clearBalls() {
-        view.getAllBalls().clear();
-    }
-    private void clearRooms() {
-        view.getAllRooms().clear();
-    }
+    // ------------------------------------- LINKING METHODS -------------------------------------
 
     public boolean getRunning() {
         return running;

@@ -1,6 +1,6 @@
 package balls.model;
 
-import balls.dto.ShipPhysicsEngine;
+import balls.physics.ShipPhysicsEngine;
 
 import java.awt.*;
 
@@ -23,6 +23,8 @@ public class Player implements Runnable {
 
     }
 
+    // ----------------------------------- THREADS -----------------------------------
+
     public void startThread() {
         this.running = true;
         this.thread = new Thread(this);
@@ -41,6 +43,23 @@ public class Player implements Runnable {
         }
         thread = null;
     }
+
+    @Override
+    public void run() {
+        while (running) {
+            Dimension[] nextPhyValues = shipPhysicsEngine.calculateNextPhysicalValues();
+            shipPhysicsEngine.setPosition(nextPhyValues[0]);
+            shipPhysicsEngine.setSpeed(nextPhyValues[1]);
+            shipPhysicsEngine.setAcceleration(nextPhyValues[2]);
+            this.rotationAngle = calcRotation();
+
+            try {
+                sleep(30);
+            } catch (InterruptedException ignored) {}
+        }
+    }
+
+    // ----------------------------------- GETTERS & SETTERS -----------------------------------
 
     public Dimension getPostion() {
         return this.shipPhysicsEngine.getPosition();
@@ -70,21 +89,6 @@ public class Player implements Runnable {
 
     public void setMovingRight(boolean b) {
         this.shipPhysicsEngine.setMotorsPushingRight(b);
-    }
-
-    @Override
-    public void run() {
-        while (running) {
-            Dimension[] nextPhyValues = shipPhysicsEngine.calculateNextPhysicalValues();
-            shipPhysicsEngine.setPosition(nextPhyValues[0]);
-            shipPhysicsEngine.setSpeed(nextPhyValues[1]);
-            shipPhysicsEngine.setAcceleration(nextPhyValues[2]);
-            this.rotationAngle = calcRotation();
-
-            try {
-                sleep(30);
-            } catch (InterruptedException ignored) {}
-        }
     }
 
     public double calcRotation() {
