@@ -1,4 +1,4 @@
-package balls.view;
+package asteroid.view;
 
 import helpers.complexComponent.RangeSlider;
 import helpers.complexComponent.SwitchButton;
@@ -13,13 +13,12 @@ public class ControlPanel extends JPanel {
     private final JButton PAUSE_BUTTON;
     private final JButton RESTART_BUTTON;
     private final SwitchButton AUTO_BUTTON;
-    private RangeSlider ballSizeSlider;
-    private RangeSlider ballSpeedSlider;
-    private Image backgoundImage;
+    private RangeSlider asteroidSizeSlider;
+    private RangeSlider asteroidSpeedSlider;
 
     public ControlPanel(View view) {
         this.view = view;
-        this.FIRE_BUTTON = new JButton("Disparar Bola");
+        this.FIRE_BUTTON = new JButton("Fire Asteroid");
         this.AUTO_BUTTON = new SwitchButton();
         this.PLAY_BUTTON = new JButton("▶");
         this.PAUSE_BUTTON = new JButton("||");
@@ -81,15 +80,15 @@ public class ControlPanel extends JPanel {
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        this.ballSizeSlider = new RangeSlider("Ball Size", 10,30);
+        this.asteroidSizeSlider = new RangeSlider("Asteroid Size", 10,30);
         gbc.gridy = 2;
-        //ballSizeSlider.setOpaque(false);
-        add(ballSizeSlider, gbc);
+        //asteroidSizeSlider.setOpaque(false);
+        add(asteroidSizeSlider, gbc);
 
-        this.ballSpeedSlider = new RangeSlider("Ball Speed", 0,10);
+        this.asteroidSpeedSlider = new RangeSlider("Asteroid Speed", 0,10);
         gbc.gridy = 3;
-        //ballSpeedSlider.setOpaque(false);
-        add(ballSpeedSlider, gbc);
+        //asteroidSpeedSlider.setOpaque(false);
+        add(asteroidSpeedSlider, gbc);
     }
 
     // ----------------------------- GETTERS & SETTERS -----------------------------
@@ -98,20 +97,20 @@ public class ControlPanel extends JPanel {
         return this.FIRE_BUTTON;
     }
 
-    public int getMinBallSpeedSliderValue() {
-        return ballSpeedSlider.getMinTextFieldValue();
+    public int getMinAsteroidSpeedSliderValue() {
+        return asteroidSpeedSlider.getMinTextFieldValue();
     }
 
-    public int getMaxBallSpeedSliderValue() {
-        return ballSpeedSlider.getMaxTextFieldValue();
+    public int getMaxAsteroidSpeedSliderValue() {
+        return asteroidSpeedSlider.getMaxTextFieldValue();
     }
 
-    public int getMinBallSizeSliderValue() {
-        return ballSizeSlider.getMinTextFieldValue();
+    public int getMinAsteroidSizeSliderValue() {
+        return asteroidSizeSlider.getMinTextFieldValue();
     }
 
-    public int getMaxBallSizeSliderValue() {
-        return ballSizeSlider.getMaxTextFieldValue();
+    public int getMaxAsteroidSizeSliderValue() {
+        return asteroidSizeSlider.getMaxTextFieldValue();
     }
 
     public JButton getPlayButton() {

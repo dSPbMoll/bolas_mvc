@@ -1,4 +1,4 @@
-package balls.view;
+package asteroid.view;
 
 import javax.swing.*;
 import java.awt.*;

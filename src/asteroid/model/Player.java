@@ -1,6 +1,6 @@
-package balls.model;
+package asteroid.model;
 
-import balls.physics.ShipPhysicsEngine;
+import asteroid.physics.ShipPhysicsEngine;
 
 import java.awt.*;
 

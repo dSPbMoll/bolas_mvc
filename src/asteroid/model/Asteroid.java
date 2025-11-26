@@ -1,15 +1,15 @@
-package balls.model;
+package asteroid.model;
 
-import balls.physics.BasicPhysicsEngine;
-import balls.physics.PhysicsEngine;
-import balls.dto.Position;
+import asteroid.physics.BasicPhysicsEngine;
+import asteroid.physics.PhysicsEngine;
+import asteroid.dto.Position;
 
 import java.awt.*;
 
 import static java.lang.Math.abs;
 import static java.lang.Thread.sleep;
 
-public class Ball implements Runnable {
+public class Asteroid implements Runnable {
     private Model model;
     private final int DIAMETER;
     private final Color COLOR;
@@ -17,14 +17,14 @@ public class Ball implements Runnable {
     private Thread thread;
     private PhysicsEngine physicsEngine;
 
-    public Ball(Model model) {
+    public Asteroid(Model model) {
         this.model = model;
-        this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinBallSizeSliderValue(), model.getMaxBallSizeSliderValue());
+        this.DIAMETER = calcRandomDiameterBetweenValues(model.getMinAsteroidSizeSliderValue(), model.getMaxAsteroidSizeSliderValue());
         this.COLOR = generateRandomColor();
 
         this.physicsEngine = new BasicPhysicsEngine();
         physicsEngine.setPosition(calcStarterRandomPosition());
-        physicsEngine.setSpeed(calcRandomSpeedBetweenValues(model.getMinBallSpeedSliderValue(), model.getMaxBallSpeedSliderValue()));
+        physicsEngine.setSpeed(calcRandomSpeedBetweenValues(model.getMinAsteroidSpeedSliderValue(), model.getMaxAsteroidSpeedSliderValue()));
     }
 
     // -------------------------------- THREAD --------------------------------
@@ -39,7 +39,7 @@ public class Ball implements Runnable {
 
                 Dimension[] nextPhysicalValues = physicsEngine.calculateNextPhysicalValues();
                 Dimension attemptedPosition = nextPhysicalValues[0];
-                model.processBallEvent(this, attemptedPosition);
+                model.processAsteroidEvent(this, attemptedPosition);
                 Thread.sleep(10);
 
             }catch (InterruptedException e){

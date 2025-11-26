@@ -1,4 +1,4 @@
-package balls.physics;
+package asteroid.physics;
 
 import java.awt.*;
 

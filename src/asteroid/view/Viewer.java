@@ -1,14 +1,11 @@
-package balls.view;
+package asteroid.view;
 
-import balls.dto.Position;
-import balls.model.Ball;
-import balls.model.Room;
+import asteroid.model.Asteroid;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
 
 public class Viewer extends Canvas implements Runnable {
     private Thread thread;
@@ -61,9 +58,9 @@ public class Viewer extends Canvas implements Runnable {
                      */
 
                     // Draw all balls
-                    synchronized (view.getAllBalls()) {
-                        for (Ball ball : view.getAllBalls()) {
-                            paintBall(ball, g2);
+                    synchronized (view.getAllAsteroids()) {
+                        for (Asteroid asteroid : view.getAllAsteroids()) {
+                            paintAsteroid(asteroid, g2);
                         }
                     }
 
@@ -86,17 +83,17 @@ public class Viewer extends Canvas implements Runnable {
         }
     }
 
-    private void paintBall(Ball ball, Graphics2D g) {
-        int diameter = ball.getDIAMETER();
+    private void paintAsteroid(Asteroid asteroid, Graphics2D g) {
+        int diameter = asteroid.getDIAMETER();
         int radius = Math.round((float) diameter /2);
-        Dimension topLeftCornerOfBall = new Dimension((int)ball.getPosition().getWidth() - radius, (int)ball.getPosition().getHeight() - radius);
+        Dimension topLeftCornerOfAsteroid = new Dimension((int) asteroid.getPosition().getWidth() - radius, (int) asteroid.getPosition().getHeight() - radius);
 
-        g.setColor(ball.getCOLOR());
+        g.setColor(asteroid.getCOLOR());
 
 
         g.drawImage(asteoridImage,
-                topLeftCornerOfBall.width,
-                topLeftCornerOfBall.height,
+                topLeftCornerOfAsteroid.width,
+                topLeftCornerOfAsteroid.height,
                 diameter, diameter,null);
     }
 
@@ -161,7 +158,7 @@ public class Viewer extends Canvas implements Runnable {
             //If the second has changed
             view.updateFPS(timesIteratedInLastSecond);
             view.updateRenderTime((double) Math.round(((double) 1000 /timesIteratedInLastSecond) * 1000.0) / 1000.0);
-            view.updateBallCount(view.getAllBalls().size());
+            view.updateAsteroidCount(view.getAllAsteroids().size());
 
             timesIteratedInLastSecond = 0;
             this.lastSecondMillisecond = System.currentTimeMillis();

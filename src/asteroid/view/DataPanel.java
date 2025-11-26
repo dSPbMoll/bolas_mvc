@@ -1,4 +1,4 @@
-package balls.view;
+package asteroid.view;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -10,7 +10,6 @@ public class DataPanel extends JPanel {
     private View view;
     private JTable table;
     private DefaultTableModel tableModel;
-    private Image backgoundImage;
 
     public DataPanel(View view) {
         this.view = view;
@@ -23,7 +22,7 @@ public class DataPanel extends JPanel {
         setLayout(new BorderLayout());
 
         String[] columnNames = {"titulo", "Valor"};
-        Object[][] data = {{"FPS:", "0"}, {"Render Time:", "0"}, {"Ball Count:", "0"}};
+        Object[][] data = {{"FPS:", "0"}, {"Render Time:", "0"}, {"Asteroid Count:", "0"}};
 
         tableModel = new DefaultTableModel(data, columnNames);
         table = new JTable(tableModel);
@@ -61,8 +60,8 @@ public class DataPanel extends JPanel {
         tableModel.setValueAt(renderTime + " ms", 1, 1);
     }
 
-    public void updateBallCount(int ballCount) {
-        tableModel.setValueAt(ballCount, 2, 1);
+    public void updateAsteroidCount(int asteroidCount) {
+        tableModel.setValueAt(asteroidCount, 2, 1);
     }
 
 
