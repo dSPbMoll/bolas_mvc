@@ -24,16 +24,14 @@ public class Viewer extends Canvas implements Runnable {
 
     public Viewer(View view) {
         this.view = view;
-        setBackground(Color.WHITE);
         setIgnoreRepaint(true);
-
         addShipMovementListener(this);
         addMouseMovementListener(this);
         addMouseClickListener(this);
         this.cursorPosition = new Dimension(0, 0);
-        asteoridImage=new ImageIcon("src/img/asteorid.png").getImage();
-        playerImage=new ImageIcon("src/img/spaceship2.png").getImage();
-        backgroundImage=new ImageIcon("src/img/galaxy4.jpg").getImage();
+        asteoridImage = new ImageIcon("src/img/asteorid.png").getImage();
+        playerImage = new ImageIcon("src/img/spaceship2.png").getImage();
+        backgroundImage = new ImageIcon("src/img/galaxy4.jpg").getImage();
     }
 
     // ---------------------------------------- VIEWER WORKING LOGIC ----------------------------------------
@@ -54,12 +52,13 @@ public class Viewer extends Canvas implements Runnable {
                     Graphics2D g2 = (Graphics2D) g;
 
                     // Paint background (clear the frame)
-                    //g2.setColor(getBackground());
-                    //g2.fillRect(0, 0, getWidth(), getHeight());
                     g2.drawImage(backgroundImage,0,0,getWidth(),getHeight(),null);
 
+                    /*
                     // Draw room
-                    //paintRectangle(g2);
+                    paintRectangle(g2);
+
+                     */
 
                     // Draw all balls
                     synchronized (view.getAllBalls()) {
@@ -95,7 +94,6 @@ public class Viewer extends Canvas implements Runnable {
         g.setColor(ball.getCOLOR());
 
 
-        //g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
         g.drawImage(asteoridImage,
                 topLeftCornerOfBall.width,
                 topLeftCornerOfBall.height,
@@ -120,9 +118,12 @@ public class Viewer extends Canvas implements Runnable {
         // Rotar arround the center of the ship
         g2.rotate(rotation, px, py);
 
+        /*
         // Draw the ship centered in its position
-        //int[] xPoints = {px, px + w / 2, px, px - w / 2};
-        //int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
+        int[] xPoints = {px, px + w / 2, px, px - w / 2};
+        int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
+
+         */
         int x=px-w/2;
         int y=py-h/2;
 
@@ -133,22 +134,25 @@ public class Viewer extends Canvas implements Runnable {
         g2.dispose();
     }
 
-    //private void paintRectangle(Graphics2D g) {
-        //ArrayList<Room> rooms = view.getAllRooms();
+    /*
+    private void paintRectangle(Graphics2D g) {
+        ArrayList<Room> rooms = view.getAllRooms();
 
-        //for (Room room : rooms) {
-            //Graphics2D g2 = (Graphics2D) g;
-            //if (room.getIsOccupied()) {
-                //g2.setColor(Color.RED);
-                //g2.fillRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
-            //}
-            //g2.setColor(Color.BLUE);
-            //g2.setStroke(new BasicStroke(3));
-            //g2.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+        for (Room room : rooms) {
+            Graphics2D g2 = (Graphics2D) g;
+            if (room.getIsOccupied()) {
+                g2.setColor(Color.RED);
+                g2.fillRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+            }
+            g2.setColor(Color.BLUE);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
 
-        //}
+        }
 
-    //}
+    }
+
+     */
 
     // ----------- DATA PANEL UPDATE
 
@@ -256,10 +260,13 @@ public class Viewer extends Canvas implements Runnable {
     // -------------------------------- VIEWER STATUS MODIFIERS --------------------------------
 
     public void startViewer() {
-        //if(view.getAllRooms().isEmpty()){
-            //view.addRoom(new Position(50, 50), new Dimension(150, 120));
-            //view.addRoom(new Position(100, 300), new Dimension(150, 120));
-        //}
+        /*
+        if(view.getAllRooms().isEmpty()){
+            view.addRoom(new Position(50, 50), new Dimension(150, 120));
+            view.addRoom(new Position(100, 300), new Dimension(150, 120));
+        }
+
+         */
         running = true;
         thread = new Thread(this);
         thread.start();

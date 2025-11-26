@@ -22,6 +22,7 @@ public class View extends JFrame {
     private final DataPanel dataPanel;
     private final Color lightBlueColor = new Color(199, 228, 238);
     private Timer autoTimer;
+    private Image backgroundImage;
 
     public View(Controller controller) {
         this.controller = controller;
@@ -42,8 +43,10 @@ public class View extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800,600);
 
-        Container content = this.getContentPane();
+        ImagePanel content=new ImagePanel("src/img/galaxy4.jpg");
+        //Container content = this.getContentPane();
         content.setLayout(new GridBagLayout());
+        setContentPane(content);
 
         buildLeftPanel(content);
         buildViewer(content);
@@ -53,8 +56,8 @@ public class View extends JFrame {
     }
 
     private void buildLeftPanel(Container content) {
-        JPanel leftPanel = new ImagePanel("src/img/galaxy4.jpg");
-
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+        leftPanel.setOpaque(false);
 
         buildControlPanel(leftPanel);
         buildDataPanel(leftPanel);
@@ -99,6 +102,7 @@ public class View extends JFrame {
         gbc.gridy = 0;
         gbc.weightx = 3.0;
         gbc.fill = GridBagConstraints.BOTH;
+
         content.add(viewer, gbc);
     }
 
@@ -174,9 +178,12 @@ public class View extends JFrame {
         controller.addBall();
     }
 
-    //public void addRoom(Position position, Dimension size) {
-        //controller.addRoom(position, size);
-    //}
+    /*
+    public void addRoom(Position position, Dimension size) {
+        controller.addRoom(position, size);
+    }
+
+     */
 
     public ArrayList<Ball> getAllBalls() {
         return controller.getAllBalls();
@@ -206,9 +213,12 @@ public class View extends JFrame {
         return controlPanel.getMaxBallSizeSliderValue();
     }
 
-    //public ArrayList<Room> getAllRooms() {
-        //return controller.getAllRooms();
-    //}
+    /*
+    public ArrayList<Room> getAllRooms() {
+        return controller.getAllRooms();
+    }
+
+     */
 
     // ------------- DATA PANEL
 

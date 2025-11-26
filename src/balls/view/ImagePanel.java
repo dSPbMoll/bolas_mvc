@@ -8,7 +8,7 @@ public class ImagePanel extends JPanel {
 
     public ImagePanel(String imagePath) {
         backgroundImage = new ImageIcon(imagePath).getImage();
-        setLayout(new GridBagLayout()); // Mantener el layout original
+        setLayout(new GridBagLayout());
     }
 
     @Override

@@ -88,27 +88,33 @@ public class Ball implements Runnable {
 
     private Position calcStarterRandomPosition() {
         Position starterRandomPosition; //= new Position(0,0);
-        //boolean validStarterPosition = false;
+        /*
+        boolean validStarterPosition = false;
 
-        //while (!validStarterPosition) {
+        while (!validStarterPosition) {
+
+         */
             starterRandomPosition = new Position((int) (Math.random() * model.getViewerWidth()), (int) (Math.random() * model.getViewerHeight()));
 
-            //for (Room room : model.getAllRooms()) {
+            /*
+            for (Room room : model.getAllRooms()) {
 
-                //Position roomPosition = room.getPosition();
-                //Dimension roomSize = room.getSize();
-                //boolean validWidth = false;
-                //boolean validHeight = false;
+                Position roomPosition = room.getPosition();
+                Dimension roomSize = room.getSize();
+                boolean validWidth = false;
+                boolean validHeight = false;
 
-                //if (!(starterRandomPosition.width > roomPosition.width && starterRandomPosition.width < (roomPosition.width + roomSize.width))) {
-                    //validWidth = true;
-                //}
-                //if (!(starterRandomPosition.height > roomPosition.height && starterRandomPosition.height < (roomPosition.height + roomSize.height))) {
-                    //validHeight = true;
-                //}
-                //validStarterPosition=(validWidth && validHeight);
-            //}
-        //}
+                if (!(starterRandomPosition.width > roomPosition.width && starterRandomPosition.width < (roomPosition.width + roomSize.width))) {
+                    validWidth = true;
+                }
+                if (!(starterRandomPosition.height > roomPosition.height && starterRandomPosition.height < (roomPosition.height + roomSize.height))) {
+                    validHeight = true;
+                }
+                validStarterPosition=(validWidth && validHeight);
+            }
+        }
+
+             */
         return starterRandomPosition;
     }
 
