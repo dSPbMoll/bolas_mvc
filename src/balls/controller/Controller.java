@@ -24,26 +24,26 @@ public class Controller {
 
     // ------------------------------- MODEL EVENTS MANAGING -------------------------------
 
-    public void ballEventManager(EventType event, Room room, Ball ball) {
-        switch (event) {
-            case BALL_ENTERS_OCCUPIED_ROOM:
-                model.ballEntersOccupiedRoom(ball, room);
-                break;
+    //public void ballEventManager(EventType event, Room room, Ball ball) {
+        //switch (event) {
+            //case BALL_ENTERS_OCCUPIED_ROOM:
+                //model.ballEntersOccupiedRoom(ball, room);
+                //break;
 
-            case BALL_ENTERS_FREE_ROOM:
-                model.ballEntersFreeRoom(ball, room);
-                break;
+            //case BALL_ENTERS_FREE_ROOM:
+                //model.ballEntersFreeRoom(ball, room);
+                //break;
 
-            case BALL_MOVES_INSIDE_ROOM:
-                model.ballMovesInsideRoom(ball, room);
-                break;
+            //case BALL_MOVES_INSIDE_ROOM:
+                //model.ballMovesInsideRoom(ball, room);
+                //break;
 
-            case BALL_EXITS_ROOM:
-                model.ballExitsRoom(ball, room);
-                break;
+            //case BALL_EXITS_ROOM:
+                //model.ballExitsRoom(ball, room);
+                //break;
 
-        }
-    }
+        //}
+    //}
 
     public void ballEventManager(EventType event, Ball ball) {
         switch (event) {
@@ -105,13 +105,13 @@ public class Controller {
 
     // ------------ ROOM
 
-    public void addRoom(Position position, Dimension size) {
-        model.addRoom(position, size);
-    }
+    //public void addRoom(Position position, Dimension size) {
+        //model.addRoom(position, size);
+    //}
 
-    public ArrayList<Room> getAllRooms() {
-        return model.getAllRooms();
-    }
+    //public ArrayList<Room> getAllRooms() {
+        //return model.getAllRooms();
+    //}
 
     // ------------- PLAYER
 

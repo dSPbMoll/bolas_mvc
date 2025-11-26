@@ -155,7 +155,7 @@ public class View extends JFrame {
         controlPanel.getRestartButton().addActionListener(e-> {
             stopAllBalls();
             getAllBalls().clear();
-            getAllRooms().clear();
+            //getAllRooms().clear();
             viewer.restartViewer();
         });
     }
@@ -172,9 +172,9 @@ public class View extends JFrame {
         controller.addBall();
     }
 
-    public void addRoom(Position position, Dimension size) {
-        controller.addRoom(position, size);
-    }
+    //public void addRoom(Position position, Dimension size) {
+        //controller.addRoom(position, size);
+    //}
 
     public ArrayList<Ball> getAllBalls() {
         return controller.getAllBalls();
@@ -204,9 +204,9 @@ public class View extends JFrame {
         return controlPanel.getMaxBallSizeSliderValue();
     }
 
-    public ArrayList<Room> getAllRooms() {
-        return controller.getAllRooms();
-    }
+    //public ArrayList<Room> getAllRooms() {
+        //return controller.getAllRooms();
+    //}
 
     // ------------- DATA PANEL
 

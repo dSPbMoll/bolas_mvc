@@ -14,14 +14,14 @@ import static java.lang.Math.abs;
 public class Model {
     private final Controller controller;
     private ArrayList<Ball> ballList;
-    private ArrayList<Room> rectangleRoomList;
+    //private ArrayList<Room> rectangleRoomList;
     private volatile boolean isPaused = false;
     private Player player;
 
     public Model(Controller controller) {
         this.controller = controller;
         this.ballList = new ArrayList<>();
-        this.rectangleRoomList = new ArrayList<>();
+        //this.rectangleRoomList = new ArrayList<>();
     }
 
     // ------------------------------------ GETTERS & SETTERS ------------------------------------
@@ -34,9 +34,9 @@ public class Model {
         this.isPaused =paused;
     }
 
-    synchronized public ArrayList<Room> getAllRooms() {
-        return this.rectangleRoomList;
-    }
+    //synchronized public ArrayList<Room> getAllRooms() {
+        //return this.rectangleRoomList;
+    //}
 
     synchronized public ArrayList<Ball> getAllBalls() {
         return ballList;
@@ -124,10 +124,10 @@ public class Model {
         }
     }
 
-    public void addRoom(Position position, Dimension size) {
-        Room room = new Room(this, position, size);
-        rectangleRoomList.add(room);
-    }
+    //public void addRoom(Position position, Dimension size) {
+        //Room room = new Room(this, position, size);
+        //rectangleRoomList.add(room);
+    //}
 
     // ------------------------------------ SIMULATION CONTROL METHODS ------------------------------------
     // ---------- GENERAL EVENT PROCESSING
@@ -143,54 +143,54 @@ public class Model {
         int attemptedY = attemptedPosition.height;
 
         // Register how the ball wants to interact with each room
-        Map<Room, EventType> interactionList = new HashMap<>();
+        //Map<Room, EventType> interactionList = new HashMap<>();
 
-        for (Room room : rectangleRoomList) {
+        //for (Room room : rectangleRoomList) {
 
-            boolean attemptedPositionIsInRoom = ((attemptedX >= room.getPosition().width && attemptedX <= (room.getPosition().width + room.getSize().width))
-                    && (attemptedY >= room.getPosition().height && attemptedY <= (room.getPosition().height + room.getSize().height)));
+            //boolean attemptedPositionIsInRoom = ((attemptedX >= room.getPosition().width && attemptedX <= (room.getPosition().width + room.getSize().width))
+                    //&& (attemptedY >= room.getPosition().height && attemptedY <= (room.getPosition().height + room.getSize().height)));
 
-            if (!attemptedPositionIsInRoom && room.getBallInside() != ball) {
+            //if (!attemptedPositionIsInRoom && room.getBallInside() != ball) {
                 //If the ball is moving without interacting with the room
-                interactionList.put(room, EventType.MOVE_BALL);
+                //interactionList.put(room, EventType.MOVE_BALL);
 
-            } else if ((!attemptedPositionIsInRoom) && room.getBallInside() == ball) {
+            //} else if ((!attemptedPositionIsInRoom) && room.getBallInside() == ball) {
                 // If the ball is in the room and is attempting to exit from it
-                interactionList.put(room, EventType.BALL_EXITS_ROOM);
+                //interactionList.put(room, EventType.BALL_EXITS_ROOM);
 
-            } else if (attemptedPositionIsInRoom && room.getBallInside() == ball) {
+            //} else if (attemptedPositionIsInRoom && room.getBallInside() == ball) {
                 // If the ball is moving inside the room
-                interactionList.put(room, EventType.BALL_MOVES_INSIDE_ROOM);
+                //interactionList.put(room, EventType.BALL_MOVES_INSIDE_ROOM);
 
-            } else if (attemptedPositionIsInRoom && room.getBallInside() != ball) {
+            //} else if (attemptedPositionIsInRoom && room.getBallInside() != ball) {
                 //If the ball is trying to enter the room
-                if (room.getIsOccupied()) {
+                //if (room.getIsOccupied()) {
                     //If a ball is already in the room
-                    interactionList.put(room, EventType.BALL_ENTERS_OCCUPIED_ROOM);
+                    //interactionList.put(room, EventType.BALL_ENTERS_OCCUPIED_ROOM);
 
-                } else {
+                //} else {
                     //If the room is free so the ball may enter
-                    interactionList.put(room, EventType.BALL_ENTERS_FREE_ROOM);
-                }
+                    //interactionList.put(room, EventType.BALL_ENTERS_FREE_ROOM);
+                //}
 
-            }
-        }
+            //}
+        //}
 
         boolean validMovement = true;
-        for (Room room : rectangleRoomList) {
-            if (interactionList.get(room).equals(EventType.BALL_ENTERS_OCCUPIED_ROOM)) {
-                validMovement = false;
-            }
-        }
+        //for (Room room : rectangleRoomList) {
+            //if (interactionList.get(room).equals(EventType.BALL_ENTERS_OCCUPIED_ROOM)) {
+                //validMovement = false;
+            //}
+        //}
 
         if (validMovement) {
 
-            for (Map.Entry<Room, EventType> interaction : interactionList.entrySet()) {
-                Room room = interaction.getKey();
-                EventType event = interaction.getValue();
+            //for (Map.Entry<Room, EventType> interaction : interactionList.entrySet()) {
+                //Room room = interaction.getKey();
+                //EventType event = interaction.getValue();
 
-                controller.ballEventManager(event, room, ball);
-            }
+                //controller.ballEventManager(event, room, ball);
+            //}
 
             int diameter = ball.getDIAMETER();
 
@@ -235,36 +235,36 @@ public class Model {
 
     // ---------- BALL - ROOM INTERACTIONS
 
-    public void ballEntersOccupiedRoom(Ball ball, Room room) {
-        synchronized (room) {
-            try {
-                while (room.getIsOccupied()) {
-                    room.wait();
-                }
-                room.setBallInside(ball);
-                room.setIsOccupied(true);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
+    //public void ballEntersOccupiedRoom(Ball ball, Room room) {
+        //synchronized (room) {
+            //try {
+                //while (room.getIsOccupied()) {
+                    //room.wait();
+                //}
+                //room.setBallInside(ball);
+                //room.setIsOccupied(true);
+            //} catch (InterruptedException e) {
+                //Thread.currentThread().interrupt();
+            //}
+        //}
+    //}
 
-    synchronized public void ballEntersFreeRoom(Ball ball, Room room) {
-        room.setBallInside(ball);
-        room.setIsOccupied(true);
-    }
+    //synchronized public void ballEntersFreeRoom(Ball ball, Room room) {
+        //room.setBallInside(ball);
+        //room.setIsOccupied(true);
+    //}
 
-    public void ballMovesInsideRoom(Ball ball, Room room) {
+    //public void ballMovesInsideRoom(Ball ball, Room room) {
 
-    }
+    //}
 
-    public void ballExitsRoom(Ball ball, Room room) {
-        synchronized (room) {
-            room.setBallInside(null);
-            room.setIsOccupied(false);
-            room.notifyAll();
-        }
-    }
+    //public void ballExitsRoom(Ball ball, Room room) {
+        //synchronized (room) {
+            //room.setBallInside(null);
+            //room.setIsOccupied(false);
+            //room.notifyAll();
+        //}
+    //}
 
 
 }

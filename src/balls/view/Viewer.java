@@ -4,6 +4,7 @@ import balls.dto.Position;
 import balls.model.Ball;
 import balls.model.Room;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
@@ -17,6 +18,7 @@ public class Viewer extends Canvas implements Runnable {
     private volatile boolean running=false;
     private BufferStrategy bufferStrategy;
     private Dimension cursorPosition;
+    private Image asteoridImage;
 
     public Viewer(View view) {
         this.view = view;
@@ -27,6 +29,7 @@ public class Viewer extends Canvas implements Runnable {
         addMouseMovementListener(this);
         addMouseClickListener(this);
         this.cursorPosition = new Dimension(0, 0);
+        asteoridImage=new ImageIcon("src/img/asteorid.png").getImage();
     }
 
     // ---------------------------------------- VIEWER WORKING LOGIC ----------------------------------------
@@ -51,7 +54,7 @@ public class Viewer extends Canvas implements Runnable {
                     g2.fillRect(0, 0, getWidth(), getHeight());
 
                     // Draw room
-                    paintRectangle(g2);
+                    //paintRectangle(g2);
 
                     // Draw all balls
                     synchronized (view.getAllBalls()) {
@@ -87,7 +90,11 @@ public class Viewer extends Canvas implements Runnable {
         g.setColor(ball.getCOLOR());
 
 
-        g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
+        //g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
+        g.drawImage(asteoridImage,
+                topLeftCornerOfBall.width,
+                topLeftCornerOfBall.height,
+                diameter, diameter,null);
     }
 
     private void paintPlayer(Graphics2D g) {
@@ -118,22 +125,22 @@ public class Viewer extends Canvas implements Runnable {
         g2.dispose();
     }
 
-    private void paintRectangle(Graphics2D g) {
-        ArrayList<Room> rooms = view.getAllRooms();
+    //private void paintRectangle(Graphics2D g) {
+        //ArrayList<Room> rooms = view.getAllRooms();
 
-        for (Room room : rooms) {
-            Graphics2D g2 = (Graphics2D) g;
-            if (room.getIsOccupied()) {
-                g2.setColor(Color.RED);
-                g2.fillRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
-            }
-            g2.setColor(Color.BLUE);
-            g2.setStroke(new BasicStroke(3));
-            g2.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+        //for (Room room : rooms) {
+            //Graphics2D g2 = (Graphics2D) g;
+            //if (room.getIsOccupied()) {
+                //g2.setColor(Color.RED);
+                //g2.fillRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
+            //}
+            //g2.setColor(Color.BLUE);
+            //g2.setStroke(new BasicStroke(3));
+            //g2.drawRect(room.getPosition().width, room.getPosition().height, room.getSize().width, room.getSize().height);
 
-        }
+        //}
 
-    }
+    //}
 
     // ----------- DATA PANEL UPDATE
 
@@ -241,10 +248,10 @@ public class Viewer extends Canvas implements Runnable {
     // -------------------------------- VIEWER STATUS MODIFIERS --------------------------------
 
     public void startViewer() {
-        if(view.getAllRooms().isEmpty()){
-            view.addRoom(new Position(50, 50), new Dimension(150, 120));
-            view.addRoom(new Position(100, 300), new Dimension(150, 120));
-        }
+        //if(view.getAllRooms().isEmpty()){
+            //view.addRoom(new Position(50, 50), new Dimension(150, 120));
+            //view.addRoom(new Position(100, 300), new Dimension(150, 120));
+        //}
         running = true;
         thread = new Thread(this);
         thread.start();
