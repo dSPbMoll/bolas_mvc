@@ -25,6 +25,7 @@ public class ControlPanel extends JPanel {
         this.RESTART_BUTTON = new JButton("◯");
         setOpaque(false);
 
+        setButtonIcons();
         buildLayout();
     }
 
@@ -38,6 +39,24 @@ public class ControlPanel extends JPanel {
         buildReproductionPanel();
         buildFirePanel();
         buildSliders();
+    }
+
+    public void setButtonIcons(){
+        ImageIcon iconPlay = new ImageIcon("src/img/play.png");
+        Image scaledIconPlay = iconPlay.getImage().getScaledInstance(24,24,Image.SCALE_SMOOTH);
+        PLAY_BUTTON.setIcon(new ImageIcon(scaledIconPlay));
+
+        ImageIcon iconPause = new ImageIcon("src/img/pause.png");
+        Image scaledIconPause = iconPause.getImage().getScaledInstance(24,24,Image.SCALE_SMOOTH);
+        PAUSE_BUTTON.setIcon(new ImageIcon(scaledIconPause));
+
+        ImageIcon iconRestart = new ImageIcon("src/img/restart.png");
+        Image scaledIconRestart = iconRestart.getImage().getScaledInstance(24,24,Image.SCALE_SMOOTH);
+        RESTART_BUTTON.setIcon(new ImageIcon(scaledIconRestart));
+
+        PLAY_BUTTON.setText("");
+        PAUSE_BUTTON.setText("");
+        RESTART_BUTTON.setText("");
     }
 
     private void buildReproductionPanel() {

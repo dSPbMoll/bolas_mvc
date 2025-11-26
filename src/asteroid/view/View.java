@@ -155,10 +155,18 @@ public class View extends JFrame {
 
     private void addRestartListener(){
         controlPanel.getRestartButton().addActionListener(e-> {
-            stopAllAsteroids();
-            getAllAsteroids().clear();
-            //getAllRooms().clear();
-            viewer.restartViewer();
+            if (!viewer.getRunning()){
+                JOptionPane.showMessageDialog(
+                        this, "Dale a play antes de hacer un restart",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            } else{
+                stopAllAsteroids();
+                getAllAsteroids().clear();
+                //getAllRooms().clear();
+                viewer.restartViewer();
+            }
         });
     }
 
