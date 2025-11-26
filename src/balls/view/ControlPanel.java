@@ -15,6 +15,7 @@ public class ControlPanel extends JPanel {
     private final SwitchButton AUTO_BUTTON;
     private RangeSlider ballSizeSlider;
     private RangeSlider ballSpeedSlider;
+    private Image backgoundImage;
 
     public ControlPanel(View view) {
         this.view = view;
@@ -23,11 +24,13 @@ public class ControlPanel extends JPanel {
         this.PLAY_BUTTON = new JButton("▶");
         this.PAUSE_BUTTON = new JButton("||");
         this.RESTART_BUTTON = new JButton("◯");
+        setOpaque(false);
 
         buildLayout();
     }
 
     // ---------------------------------- LAYOUT BUILDING ----------------------------------
+
 
     private void buildLayout() {
         setLayout(new GridBagLayout());
@@ -46,6 +49,7 @@ public class ControlPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         JPanel reproductionPanel = new JPanel();
+        reproductionPanel.setOpaque(false);
         reproductionPanel.setLayout(new GridLayout(1,3,2,2));
         reproductionPanel.add(PLAY_BUTTON);
         reproductionPanel.add(PAUSE_BUTTON);
@@ -66,6 +70,7 @@ public class ControlPanel extends JPanel {
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridy=1;
+        firePanel.setOpaque(false);
         add(firePanel, gbc);
     }
 
@@ -78,10 +83,12 @@ public class ControlPanel extends JPanel {
 
         this.ballSizeSlider = new RangeSlider("Ball Size", 10,30);
         gbc.gridy = 2;
+        //ballSizeSlider.setOpaque(false);
         add(ballSizeSlider, gbc);
 
         this.ballSpeedSlider = new RangeSlider("Ball Speed", 0,10);
         gbc.gridy = 3;
+        //ballSpeedSlider.setOpaque(false);
         add(ballSpeedSlider, gbc);
     }
 

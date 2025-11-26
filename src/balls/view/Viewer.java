@@ -19,6 +19,8 @@ public class Viewer extends Canvas implements Runnable {
     private BufferStrategy bufferStrategy;
     private Dimension cursorPosition;
     private Image asteoridImage;
+    private Image playerImage;
+    private Image backgroundImage;
 
     public Viewer(View view) {
         this.view = view;
@@ -30,6 +32,8 @@ public class Viewer extends Canvas implements Runnable {
         addMouseClickListener(this);
         this.cursorPosition = new Dimension(0, 0);
         asteoridImage=new ImageIcon("src/img/asteorid.png").getImage();
+        playerImage=new ImageIcon("src/img/spaceship2.png").getImage();
+        backgroundImage=new ImageIcon("src/img/galaxy4.jpg").getImage();
     }
 
     // ---------------------------------------- VIEWER WORKING LOGIC ----------------------------------------
@@ -50,8 +54,9 @@ public class Viewer extends Canvas implements Runnable {
                     Graphics2D g2 = (Graphics2D) g;
 
                     // Paint background (clear the frame)
-                    g2.setColor(getBackground());
-                    g2.fillRect(0, 0, getWidth(), getHeight());
+                    //g2.setColor(getBackground());
+                    //g2.fillRect(0, 0, getWidth(), getHeight());
+                    g2.drawImage(backgroundImage,0,0,getWidth(),getHeight(),null);
 
                     // Draw room
                     //paintRectangle(g2);
@@ -116,11 +121,14 @@ public class Viewer extends Canvas implements Runnable {
         g2.rotate(rotation, px, py);
 
         // Draw the ship centered in its position
-        int[] xPoints = {px, px + w / 2, px, px - w / 2};
-        int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
+        //int[] xPoints = {px, px + w / 2, px, px - w / 2};
+        //int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
+        int x=px-w/2;
+        int y=py-h/2;
 
         g2.setColor(Color.GREEN);
-        g2.fillPolygon(xPoints, yPoints, 4);
+        //g2.fillPolygon(xPoints, yPoints, 4);
+        g2.drawImage(playerImage,x,y,w,h,null);
 
         g2.dispose();
     }

@@ -53,8 +53,8 @@ public class View extends JFrame {
     }
 
     private void buildLeftPanel(Container content) {
-        JPanel leftPanel = new JPanel(new GridBagLayout());
-        leftPanel.setBackground(getLightBlueColor());
+        JPanel leftPanel = new ImagePanel("src/img/galaxy4.jpg");
+
 
         buildControlPanel(leftPanel);
         buildDataPanel(leftPanel);
@@ -73,6 +73,7 @@ public class View extends JFrame {
         gbc.anchor = GridBagConstraints.NORTH;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weighty = 1;
+        controlPanel.setOpaque(false);
         lp.add(controlPanel, gbc);
 
         addFireButtonListener();
@@ -88,6 +89,7 @@ public class View extends JFrame {
         gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.SOUTH;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        dataPanel.setOpaque(false);
         lp.add(dataPanel, gbc);
     }
 

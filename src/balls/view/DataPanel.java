@@ -10,10 +10,10 @@ public class DataPanel extends JPanel {
     private View view;
     private JTable table;
     private DefaultTableModel tableModel;
+    private Image backgoundImage;
 
     public DataPanel(View view) {
         this.view = view;
-
         buildLayout();
     }
 
@@ -28,16 +28,25 @@ public class DataPanel extends JPanel {
         tableModel = new DefaultTableModel(data, columnNames);
         table = new JTable(tableModel);
 
+
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+        renderer.setOpaque(false);
+        table.getColumnModel().getColumn(0).setCellRenderer(renderer);
+
         TableColumnModel columnModel = table.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(100);
         columnModel.getColumn(1).setPreferredWidth(50);
 
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setOpaque(false);
         rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         columnModel.getColumn(1).setCellRenderer(rightRenderer);
 
+
+        table.setForeground(Color.white);
+        table.setOpaque(false);
         table.setShowGrid(false);
-        table.setBackground(view.getLightBlueColor());
+        //table.setBackground(view.getLightBlueColor());
 
         add(table);
     }
