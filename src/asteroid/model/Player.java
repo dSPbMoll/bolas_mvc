@@ -1,6 +1,6 @@
-package balls.model;
+package asteroid.model;
 
-import balls.physics.ShipPhysicsEngine;
+import asteroid.physics.ShipPhysicsEngine;
 
 import java.awt.*;
 
@@ -18,7 +18,7 @@ public class Player implements Runnable {
     public Player(Model model) {
         this.model = model;
         this.shipPhysicsEngine = new ShipPhysicsEngine();
-        this.size = new Dimension(30, 50);
+        this.size = new Dimension(60, 80);
         this.rotationAngle = 0;
 
     }

@@ -1,14 +1,11 @@
-package balls.view;
+package asteroid.view;
 
 import javax.swing.*;
-import balls.controller.Controller;
-import balls.dto.Position;
-import balls.model.Ball;
-import balls.model.Room;
+import asteroid.controller.Controller;
+import asteroid.model.Asteroid;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.Thread.sleep;
 
@@ -22,6 +19,7 @@ public class View extends JFrame {
     private final DataPanel dataPanel;
     private final Color lightBlueColor = new Color(199, 228, 238);
     private Timer autoTimer;
+    private Image backgroundImage;
 
     public View(Controller controller) {
         this.controller = controller;
@@ -42,8 +40,9 @@ public class View extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800,600);
 
-        Container content = this.getContentPane();
+        ImagePanel content=new ImagePanel("src/img/galaxy4.jpg");
         content.setLayout(new GridBagLayout());
+        setContentPane(content);
 
         buildLeftPanel(content);
         buildViewer(content);
@@ -54,7 +53,7 @@ public class View extends JFrame {
 
     private void buildLeftPanel(Container content) {
         JPanel leftPanel = new JPanel(new GridBagLayout());
-        leftPanel.setBackground(getLightBlueColor());
+        leftPanel.setOpaque(false);
 
         buildControlPanel(leftPanel);
         buildDataPanel(leftPanel);
@@ -73,6 +72,7 @@ public class View extends JFrame {
         gbc.anchor = GridBagConstraints.NORTH;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weighty = 1;
+        controlPanel.setOpaque(false);
         lp.add(controlPanel, gbc);
 
         addFireButtonListener();
@@ -88,6 +88,7 @@ public class View extends JFrame {
         gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.SOUTH;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        dataPanel.setOpaque(false);
         lp.add(dataPanel, gbc);
     }
 
@@ -97,6 +98,7 @@ public class View extends JFrame {
         gbc.gridy = 0;
         gbc.weightx = 3.0;
         gbc.fill = GridBagConstraints.BOTH;
+
         content.add(viewer, gbc);
     }
 
@@ -106,12 +108,12 @@ public class View extends JFrame {
         controlPanel.getFIRE_BUTTON().addActionListener(e->{
             if (!viewer.getRunning()){
                 JOptionPane.showMessageDialog(
-                        this, "Dale a play antes de disparar una bola",
+                        this, "Dale a play antes de disparar un asteroide",
                         "Aviso",
                         JOptionPane.WARNING_MESSAGE
                 );
             } else{
-                addBall();
+                addAsteroid();
             }
         });
 
@@ -123,7 +125,7 @@ public class View extends JFrame {
                 if(autoTimer!=null){
                     autoTimer.stop();
                 }
-                autoTimer=new Timer(2000, ev-> controller.addBall());
+                autoTimer=new Timer(2000, ev-> controller.addAsteroid());
                 autoTimer.start();
             } else if (autoTimer!=null) {
                 autoTimer.stop();
@@ -153,10 +155,18 @@ public class View extends JFrame {
 
     private void addRestartListener(){
         controlPanel.getRestartButton().addActionListener(e-> {
-            stopAllBalls();
-            getAllBalls().clear();
-            getAllRooms().clear();
-            viewer.restartViewer();
+            if (!viewer.getRunning()){
+                JOptionPane.showMessageDialog(
+                        this, "Dale a play antes de hacer un restart",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            } else{
+                stopAllAsteroids();
+                getAllAsteroids().clear();
+                //getAllRooms().clear();
+                viewer.restartViewer();
+            }
         });
     }
 
@@ -168,16 +178,19 @@ public class View extends JFrame {
 
     // ---------------------------------- LINKING METHODS ----------------------------------
 
-    public void addBall() {
-        controller.addBall();
+    public void addAsteroid() {
+        controller.addAsteroid();
     }
 
+    /*
     public void addRoom(Position position, Dimension size) {
         controller.addRoom(position, size);
     }
 
-    public ArrayList<Ball> getAllBalls() {
-        return controller.getAllBalls();
+     */
+
+    public ArrayList<Asteroid> getAllAsteroids() {
+        return controller.getAllAsteroids();
     }
 
     public int getViewerWidth() {
@@ -188,25 +201,28 @@ public class View extends JFrame {
         return viewer.getHeight();
     }
 
-    public int getMinBallSpeedSliderValue() {
-        return controlPanel.getMinBallSpeedSliderValue();
+    public int getMinAsteroidSpeedSliderValue() {
+        return controlPanel.getMinAsteroidSpeedSliderValue();
     }
 
-    public int getMaxBallSpeedSliderValue() {
-        return controlPanel.getMaxBallSpeedSliderValue();
+    public int getMaxAsteroidSpeedSliderValue() {
+        return controlPanel.getMaxAsteroidSpeedSliderValue();
     }
 
-    public int getMinBallSizeSliderValue() {
-        return controlPanel.getMinBallSizeSliderValue();
+    public int getMinAsteroidSizeSliderValue() {
+        return controlPanel.getMinAsteroidSizeSliderValue();
     }
 
-    public int getMaxBallSizeSliderValue() {
-        return controlPanel.getMaxBallSizeSliderValue();
+    public int getMaxAsteroidSizeSliderValue() {
+        return controlPanel.getMaxAsteroidSizeSliderValue();
     }
 
+    /*
     public ArrayList<Room> getAllRooms() {
         return controller.getAllRooms();
     }
+
+     */
 
     // ------------- DATA PANEL
 
@@ -218,12 +234,12 @@ public class View extends JFrame {
         this.dataPanel.updateRenderTime(renderTime);
     }
 
-    public void updateBallCount(int ballCount) {
-        this.dataPanel.updateBallCount(ballCount);
+    public void updateAsteroidCount(int asteroidCount) {
+        this.dataPanel.updateAsteroidCount(asteroidCount);
     }
 
-    public void stopAllBalls(){
-        controller.stopAllBalls();
+    public void stopAllAsteroids(){
+        controller.stopAllAsteroids();
     }
 
     // ------------- PLAYER

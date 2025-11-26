@@ -1,13 +1,11 @@
-package balls.view;
+package asteroid.view;
 
-import balls.dto.Position;
-import balls.model.Ball;
-import balls.model.Room;
+import asteroid.model.Asteroid;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
 
 public class Viewer extends Canvas implements Runnable {
     private Thread thread;
@@ -17,16 +15,20 @@ public class Viewer extends Canvas implements Runnable {
     private volatile boolean running=false;
     private BufferStrategy bufferStrategy;
     private Dimension cursorPosition;
+    private Image asteoridImage;
+    private Image playerImage;
+    private Image backgroundImage;
 
     public Viewer(View view) {
         this.view = view;
-        setBackground(Color.WHITE);
         setIgnoreRepaint(true);
-
         addShipMovementListener(this);
         addMouseMovementListener(this);
         addMouseClickListener(this);
         this.cursorPosition = new Dimension(0, 0);
+        asteoridImage = new ImageIcon("src/img/asteorid.png").getImage();
+        playerImage = new ImageIcon("src/img/spaceship2.png").getImage();
+        backgroundImage = new ImageIcon("src/img/galaxy4.jpg").getImage();
     }
 
     // ---------------------------------------- VIEWER WORKING LOGIC ----------------------------------------
@@ -47,16 +49,18 @@ public class Viewer extends Canvas implements Runnable {
                     Graphics2D g2 = (Graphics2D) g;
 
                     // Paint background (clear the frame)
-                    g2.setColor(getBackground());
-                    g2.fillRect(0, 0, getWidth(), getHeight());
+                    g2.drawImage(backgroundImage,0,0,getWidth(),getHeight(),null);
 
+                    /*
                     // Draw room
                     paintRectangle(g2);
 
+                     */
+
                     // Draw all balls
-                    synchronized (view.getAllBalls()) {
-                        for (Ball ball : view.getAllBalls()) {
-                            paintBall(ball, g2);
+                    synchronized (view.getAllAsteroids()) {
+                        for (Asteroid asteroid : view.getAllAsteroids()) {
+                            paintAsteroid(asteroid, g2);
                         }
                     }
 
@@ -79,15 +83,18 @@ public class Viewer extends Canvas implements Runnable {
         }
     }
 
-    private void paintBall(Ball ball, Graphics2D g) {
-        int diameter = ball.getDIAMETER();
+    private void paintAsteroid(Asteroid asteroid, Graphics2D g) {
+        int diameter = asteroid.getDIAMETER();
         int radius = Math.round((float) diameter /2);
-        Dimension topLeftCornerOfBall = new Dimension((int)ball.getPosition().getWidth() - radius, (int)ball.getPosition().getHeight() - radius);
+        Dimension topLeftCornerOfAsteroid = new Dimension((int) asteroid.getPosition().getWidth() - radius, (int) asteroid.getPosition().getHeight() - radius);
 
-        g.setColor(ball.getCOLOR());
+        g.setColor(asteroid.getCOLOR());
 
 
-        g.fillOval(topLeftCornerOfBall.width, topLeftCornerOfBall.height, diameter, diameter);
+        g.drawImage(asteoridImage,
+                topLeftCornerOfAsteroid.width,
+                topLeftCornerOfAsteroid.height,
+                diameter, diameter,null);
     }
 
     private void paintPlayer(Graphics2D g) {
@@ -108,16 +115,23 @@ public class Viewer extends Canvas implements Runnable {
         // Rotar arround the center of the ship
         g2.rotate(rotation, px, py);
 
+        /*
         // Draw the ship centered in its position
         int[] xPoints = {px, px + w / 2, px, px - w / 2};
         int[] yPoints = {py - h / 2, py + h / 2, py + h/3, py + h / 2};
 
+         */
+        int x=px-w/2;
+        int y=py-h/2;
+
         g2.setColor(Color.GREEN);
-        g2.fillPolygon(xPoints, yPoints, 4);
+        //g2.fillPolygon(xPoints, yPoints, 4);
+        g2.drawImage(playerImage,x,y,w,h,null);
 
         g2.dispose();
     }
 
+    /*
     private void paintRectangle(Graphics2D g) {
         ArrayList<Room> rooms = view.getAllRooms();
 
@@ -135,6 +149,8 @@ public class Viewer extends Canvas implements Runnable {
 
     }
 
+     */
+
     // ----------- DATA PANEL UPDATE
 
     private void updateDataPanelIfShould() {
@@ -142,7 +158,7 @@ public class Viewer extends Canvas implements Runnable {
             //If the second has changed
             view.updateFPS(timesIteratedInLastSecond);
             view.updateRenderTime((double) Math.round(((double) 1000 /timesIteratedInLastSecond) * 1000.0) / 1000.0);
-            view.updateBallCount(view.getAllBalls().size());
+            view.updateAsteroidCount(view.getAllAsteroids().size());
 
             timesIteratedInLastSecond = 0;
             this.lastSecondMillisecond = System.currentTimeMillis();
@@ -241,10 +257,13 @@ public class Viewer extends Canvas implements Runnable {
     // -------------------------------- VIEWER STATUS MODIFIERS --------------------------------
 
     public void startViewer() {
+        /*
         if(view.getAllRooms().isEmpty()){
             view.addRoom(new Position(50, 50), new Dimension(150, 120));
             view.addRoom(new Position(100, 300), new Dimension(150, 120));
         }
+
+         */
         running = true;
         thread = new Thread(this);
         thread.start();

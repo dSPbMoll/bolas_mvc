@@ -1,4 +1,4 @@
-package balls.dto;
+package asteroid.dto;
 
 import java.awt.*;
 

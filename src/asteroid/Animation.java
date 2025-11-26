@@ -1,6 +1,6 @@
-package balls;
+package asteroid;
 
-import balls.controller.Controller;
+import asteroid.controller.Controller;
 
 public class Animation {
     public static void main(String[] args) {

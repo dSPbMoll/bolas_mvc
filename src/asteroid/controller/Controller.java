@@ -1,15 +1,12 @@
-package balls.controller;
+package asteroid.controller;
 
-import balls.dto.Position;
-import balls.model.Ball;
-import balls.model.EventType;
-import balls.model.Room;
-import balls.view.View;
-import balls.model.Model;
+import asteroid.model.Asteroid;
+import asteroid.model.EventType;
+import asteroid.view.View;
+import asteroid.model.Model;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Controller {
     private final Model model;
@@ -24,43 +21,43 @@ public class Controller {
 
     // ------------------------------- MODEL EVENTS MANAGING -------------------------------
 
-    public void ballEventManager(EventType event, Room room, Ball ball) {
-        switch (event) {
-            case BALL_ENTERS_OCCUPIED_ROOM:
-                model.ballEntersOccupiedRoom(ball, room);
-                break;
+    //public void asteroidEventManager(EventType event, Room room, Asteroid asteroid) {
+        //switch (event) {
+            //case ASTEROID_ENTERS_OCCUPIED_ROOM:
+                //model.asteroidEntersOccupiedRoom(asteroid, room);
+                //break;
 
-            case BALL_ENTERS_FREE_ROOM:
-                model.ballEntersFreeRoom(ball, room);
-                break;
+            //case ASTEROID_ENTERS_FREE_ROOM:
+                //model.asteroidEntersFreeRoom(asteroid, room);
+                //break;
 
-            case BALL_MOVES_INSIDE_ROOM:
-                model.ballMovesInsideRoom(ball, room);
-                break;
+            //case ASTEROID_MOVES_INSIDE_ROOM:
+                //model.asteroidMovesInsideRoom(asteroid, room);
+                //break;
 
-            case BALL_EXITS_ROOM:
-                model.ballExitsRoom(ball, room);
-                break;
+            //case ASTEROID_EXITS_ROOM:
+                //model.asteroidExitsRoom(asteroid, room);
+                //break;
 
-        }
-    }
+        //}
+    //}
 
-    public void ballEventManager(EventType event, Ball ball) {
+    public void asteroidEventManager(EventType event, Asteroid asteroid) {
         switch (event) {
             case NORTH_LIMIT_REACHED:
-                model.northLimitBounce(ball);
+                model.northLimitBounce(asteroid);
                 break;
 
             case SOUTH_LIMIT_REACHED:
-                model.southLimitBounce(ball);
+                model.southLimitBounce(asteroid);
                 break;
 
             case EAST_LIMIT_REACHED:
-                model.eastLimitBounce(ball);
+                model.eastLimitBounce(asteroid);
                 break;
 
             case WEST_LIMIT_REACHED:
-                model.westLimitBounce(ball);
+                model.westLimitBounce(asteroid);
                 break;
 
         }
@@ -73,45 +70,45 @@ public class Controller {
     }
 
     // ------------------------------------- LINKING METHODS -------------------------------------
-    // ------------- BALL
+    // ------------- ASTEROID
 
-    public void addBall() {
-        model.addBall();
+    public void addAsteroid() {
+        model.addAsteroid();
     }
 
-    public ArrayList<Ball> getAllBalls() {
-        return model.getAllBalls();
+    public ArrayList<Asteroid> getAllAsteroids() {
+        return model.getAllAsteroids();
     }
 
-    public void stopAllBalls(){
-        model.stopAllBalls();
+    public void stopAllAsteroids(){
+        model.stopAllAsteroids();
     }
 
-    public int getMinBallSpeedSliderValue() {
-        return view.getMinBallSpeedSliderValue();
+    public int getMinAsteroidSpeedSliderValue() {
+        return view.getMinAsteroidSpeedSliderValue();
     }
 
-    public int getMaxBallSpeedSliderValue() {
-        return view.getMaxBallSpeedSliderValue();
+    public int getMaxAsteroidSpeedSliderValue() {
+        return view.getMaxAsteroidSpeedSliderValue();
     }
 
-    public int getMinBallSizeSliderValue() {
-        return view.getMinBallSizeSliderValue();
+    public int getMinAsteroidSizeSliderValue() {
+        return view.getMinAsteroidSizeSliderValue();
     }
 
-    public int getMaxBallSizeSliderValue() {
-        return view.getMaxBallSizeSliderValue();
+    public int getMaxAsteroidSizeSliderValue() {
+        return view.getMaxAsteroidSizeSliderValue();
     }
 
     // ------------ ROOM
 
-    public void addRoom(Position position, Dimension size) {
-        model.addRoom(position, size);
-    }
+    //public void addRoom(Position position, Dimension size) {
+        //model.addRoom(position, size);
+    //}
 
-    public ArrayList<Room> getAllRooms() {
-        return model.getAllRooms();
-    }
+    //public ArrayList<Room> getAllRooms() {
+        //return model.getAllRooms();
+    //}
 
     // ------------- PLAYER
 
