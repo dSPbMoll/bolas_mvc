@@ -1,5 +1,6 @@
 package asteroid.view;
 
+import asteroid.dto.EntityParamsDto;
 import helpers.complexComponent.RangeSlider;
 import helpers.complexComponent.SwitchButton;
 
@@ -13,8 +14,8 @@ public class ControlPanel extends JPanel {
     private final JButton PAUSE_BUTTON;
     private final JButton RESTART_BUTTON;
     private final SwitchButton AUTO_BUTTON;
-    private RangeSlider asteroidSizeSlider;
-    private RangeSlider asteroidSpeedSlider;
+    private RangeSlider sizeSlider;
+    private RangeSlider speedSlider;
 
     public ControlPanel(View view) {
         this.view = view;
@@ -30,7 +31,6 @@ public class ControlPanel extends JPanel {
     }
 
     // ---------------------------------- LAYOUT BUILDING ----------------------------------
-
 
     private void buildLayout() {
         setLayout(new GridBagLayout());
@@ -81,6 +81,7 @@ public class ControlPanel extends JPanel {
         firePanel.setBackground(view.getLightBlueColor());
         firePanel.add(FIRE_BUTTON);
         firePanel.add(AUTO_BUTTON);
+        AUTO_BUTTON.setSelected(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6,6,6,6);
@@ -99,15 +100,15 @@ public class ControlPanel extends JPanel {
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        this.asteroidSizeSlider = new RangeSlider("Asteroid Size", 10,30);
+        this.sizeSlider = new RangeSlider(this, "Asteroid Size", 10,30);
         gbc.gridy = 2;
         //asteroidSizeSlider.setOpaque(false);
-        add(asteroidSizeSlider, gbc);
+        add(sizeSlider, gbc);
 
-        this.asteroidSpeedSlider = new RangeSlider("Asteroid Speed", 0,10);
+        this.speedSlider = new RangeSlider(this, "Asteroid Speed", 0,10);
         gbc.gridy = 3;
         //asteroidSpeedSlider.setOpaque(false);
-        add(asteroidSpeedSlider, gbc);
+        add(speedSlider, gbc);
     }
 
     // ----------------------------- GETTERS & SETTERS -----------------------------
@@ -117,19 +118,19 @@ public class ControlPanel extends JPanel {
     }
 
     public int getMinAsteroidSpeedSliderValue() {
-        return asteroidSpeedSlider.getMinTextFieldValue();
+        return speedSlider.getMinTextFieldValue();
     }
 
     public int getMaxAsteroidSpeedSliderValue() {
-        return asteroidSpeedSlider.getMaxTextFieldValue();
+        return speedSlider.getMaxTextFieldValue();
     }
 
     public int getMinAsteroidSizeSliderValue() {
-        return asteroidSizeSlider.getMinTextFieldValue();
+        return sizeSlider.getMinTextFieldValue();
     }
 
     public int getMaxAsteroidSizeSliderValue() {
-        return asteroidSizeSlider.getMaxTextFieldValue();
+        return sizeSlider.getMaxTextFieldValue();
     }
 
     public JButton getPlayButton() {
@@ -145,4 +146,17 @@ public class ControlPanel extends JPanel {
     }
 
     public JToggleButton getAutoButton(){ return this.AUTO_BUTTON; }
+
+    // =================================== LINKING METHODS ===================================
+
+    public void sendNewEntityParamsToLifeGenerator() {
+        view.sendNewEntityParamsToLifeGenerator(
+                new EntityParamsDto(
+                        sizeSlider.getMinTextFieldValue(),
+                        sizeSlider.getMaxTextFieldValue(),
+                        speedSlider.getMinTextFieldValue(),
+                        speedSlider.getMaxTextFieldValue()
+                )
+        );
+    }
 }
