@@ -1,63 +1,103 @@
 package asteroid.controller;
 
-import asteroid.model.Asteroid;
+import asteroid.controller.entity.EntityType;
+import asteroid.dto.BodyDto;
+import asteroid.dto.EntityParamsDto;
+import asteroid.dto.ShipMovementDto;
+import asteroid.life_generation.LifeGenerator;
+import asteroid.model.body.Body;
 import asteroid.model.EventType;
+import asteroid.model.body.MovingBody;
 import asteroid.view.View;
 import asteroid.model.Model;
-
-import java.awt.*;
+import asteroid.view.renderable.Renderable;
+import config.player.ControlConfig;
+import config.simulation.AsteroidConfig;
+import config.simulation.WorldConfig;
+import helpers.CardinalDirection;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Controller {
     private final Model model;
     private final View view;
+    private final HashMap<EntityType, CopyOnWriteArrayList<Long>> entities;
+    private LifeGenerator lifeGenerator;
 
-    public Controller() {
-        this.model = new Model(this);
-        this.view = new View(this);
+    public Controller(
+            HashMap<ControlConfig, String> playerControlConfigs,
+            HashMap<WorldConfig, Integer> worldConfigs,
+            HashMap<AsteroidConfig, Integer> asteroidConfigs) {
 
-        this.model.addPlayer();
+        this.model = new Model(this, worldConfigs);
+        this.view = new View(this, playerControlConfigs, worldConfigs);
+        this.lifeGenerator = new LifeGenerator(this, worldConfigs, asteroidConfigs);
+        this.entities = new HashMap<>();
+
+        entities.put(EntityType.ASTEROID, new CopyOnWriteArrayList<>());
+        entities.put(EntityType.PLAYER, new CopyOnWriteArrayList<>());
+        entities.put(EntityType.PLANET, new CopyOnWriteArrayList<>());
+        entities.put(EntityType.SHOT, new CopyOnWriteArrayList<>());
+
+        lifeGenerator.generateRandomizedEntityOfType(EntityType.PLAYER);
     }
 
     // ------------------------------- MODEL EVENTS MANAGING -------------------------------
 
-    //public void asteroidEventManager(EventType event, Room room, Asteroid asteroid) {
-        //switch (event) {
-            //case ASTEROID_ENTERS_OCCUPIED_ROOM:
-                //model.asteroidEntersOccupiedRoom(asteroid, room);
-                //break;
+    public void addEntity(Body body, Renderable renderable) {
+        if (body.getType() != renderable.getType()) throw new IllegalArgumentException("Body's and Renderable's types doesn't match");
 
-            //case ASTEROID_ENTERS_FREE_ROOM:
-                //model.asteroidEntersFreeRoom(asteroid, room);
-                //break;
+        boolean addedToEntities = false;
+        switch (body.getType()) {
+            case EntityType.ASTEROID:
+                entities.get(EntityType.ASTEROID).add(body.getEntityId());
+                addedToEntities = true;
+                break;
 
-            //case ASTEROID_MOVES_INSIDE_ROOM:
-                //model.asteroidMovesInsideRoom(asteroid, room);
-                //break;
+            case EntityType.PLAYER:
+                entities.get(EntityType.PLAYER).add(body.getEntityId());
+                addedToEntities = true;
+                break;
 
-            //case ASTEROID_EXITS_ROOM:
-                //model.asteroidExitsRoom(asteroid, room);
-                //break;
+            case EntityType.PLANET:
+                entities.get(EntityType.PLANET).add(body.getEntityId());
+                addedToEntities = true;
+                break;
 
-        //}
-    //}
+            case EntityType.SHOT:
+                entities.get(EntityType.SHOT).add(body.getEntityId());
+                addedToEntities = true;
+                break;
+        }
+        if (!addedToEntities) throw new NullPointerException("Entity not present in Controller's entities list");
 
-    public void asteroidEventManager(EventType event, Asteroid asteroid) {
+        model.addBody(body);
+        view.addRenderable(renderable);
+    }
+
+    public void movingBodyEventManager(EventType event, MovingBody movingBody) {
         switch (event) {
             case NORTH_LIMIT_REACHED:
-                model.northLimitBounce(asteroid);
+                deleteEntity(movingBody.getType(), movingBody.getEntityId());
+                //model.northLimitBounce(movingBody);
                 break;
 
             case SOUTH_LIMIT_REACHED:
-                model.southLimitBounce(asteroid);
+                deleteEntity(movingBody.getType(), movingBody.getEntityId());
+                //model.southLimitBounce(movingBody);
                 break;
 
             case EAST_LIMIT_REACHED:
-                model.eastLimitBounce(asteroid);
+                deleteEntity(movingBody.getType(), movingBody.getEntityId());
+                //model.eastLimitBounce(movingBody);
                 break;
 
             case WEST_LIMIT_REACHED:
-                model.westLimitBounce(asteroid);
+                deleteEntity(movingBody.getType(), movingBody.getEntityId());
+                //model.westLimitBounce(movingBody);
                 break;
 
         }
@@ -65,23 +105,14 @@ public class Controller {
 
     // ------------------------------------- GETTERS & SETTERS -------------------------------------
 
-    public void setPaused(boolean paused){
-        model.setIsPaused(paused);
-    }
-
     // ------------------------------------- LINKING METHODS -------------------------------------
-    // ------------- ASTEROID
 
-    public void addAsteroid() {
-        model.addAsteroid();
+    public ArrayList<BodyDto> getAllBodyDtosByType(EntityType type) {
+        return model.getAllBodyDtosByType(type);
     }
 
-    public ArrayList<Asteroid> getAllAsteroids() {
-        return model.getAllAsteroids();
-    }
-
-    public void stopAllAsteroids(){
-        model.stopAllAsteroids();
+    public void stopAllMovingBodies(){
+        model.stopAllMovingBodies();
     }
 
     public int getMinAsteroidSpeedSliderValue() {
@@ -100,56 +131,54 @@ public class Controller {
         return view.getMaxAsteroidSizeSliderValue();
     }
 
-    // ------------ ROOM
+    public void startAllMovingBodies() {
+        model.startAllMovingBodies();
+    }
 
-    //public void addRoom(Position position, Dimension size) {
-        //model.addRoom(position, size);
-    //}
+    public void sendNewEntityParamsToLifeGenerator(EntityParamsDto params) {
+        lifeGenerator.setEntityParams(params);
+    }
 
-    //public ArrayList<Room> getAllRooms() {
-        //return model.getAllRooms();
-    //}
+    public void generateEntityInLifeGenerator() {
+        lifeGenerator.generateRandomEntity();
+    }
+
+    public void setRunningLifeGenerator(boolean b){
+        lifeGenerator.setRunning(b);
+    }
+
+    public void setPlayerShooting(long entityId, boolean b) {
+        model.setPlayerShooting(entityId, b);
+    }
+
+    public void generatePlayerShot(long entityId, Point2D.Double position, double rotationAngle, int bulletSpeed) {
+        lifeGenerator.generatePlayerShot(entityId, position, rotationAngle, bulletSpeed);
+    }
+
+    public void startLifeGenerator() {
+        lifeGenerator.startThread();
+    }
+
+    public void stopLifeGenerator() {
+        lifeGenerator.stopThread();
+    }
 
     // ------------- PLAYER
 
-    public Dimension getPlayerPosition() {
-        return model.getPlayerPosition();
+    public void setPlayerMoving(int entityId, boolean b, CardinalDirection direction) {
+        model.setPlayerMoving(entityId, b, direction);
     }
 
-    public Dimension getPlayerSize() {
-        return this.model.getPlayerSize();
+    public void calcRotationAngleOfPlayer(Point2D.Double mouseP, int entityId) {
+        for (Long id : entities.get(EntityType.PLAYER)) {
+            if (id == entityId) {
+                model.calcRotationAngleOfPlayer(mouseP, 1);
+            }
+        }
     }
 
-    public void setPlayerMovingUp(boolean b) {
-        model.setPlayerMovingUp(b);
-    }
-
-    public void setPlayerMovingLeft(boolean b) {
-        model.setPlayerMovingLeft(b);
-    }
-
-    public void setPlayerMovingRight(boolean b) {
-        model.setPlayerMovingRight(b);
-    }
-
-    public void setPlayerMovingDown(boolean b) {
-        model.setPlayerMovingDown(b);
-    }
-
-    public Dimension getCursorPositionInViewer() {
-        return view.getCursorPositionInViewer();
-    }
-
-    public double getPlayerRotationAngle() {
-        return model.getPlayerRotationAngle();
-    }
-
-    public void startPlayerThread() {
-        model.startPlayerThread();
-    }
-
-    public void stopPlayerThread() {
-        model.stopPlayerThread();
+    public ShipMovementDto getShipMovementDtoOfPlayer(long entityId) {
+        return model.getShipMovementDtoOfPlayer(entityId);
     }
 
     // --------- OTHER
@@ -161,4 +190,21 @@ public class Controller {
     public int getViewerHeight() {
         return view.getViewerHeight();
     }
+
+    public void deleteAllEntities() {
+        for (Map.Entry<EntityType, CopyOnWriteArrayList<Long>> entry : entities.entrySet()) {
+            entry.getValue().clear();
+        }
+        view.deleteAllRenderables();
+        model.deleteAllBodies();
+    }
+
+    public void deleteEntity(EntityType type, long entityId) {
+        model.deleteBody(type, entityId);
+        view.deleteRenderable(type, entityId);
+
+        entities.get(type).remove(entityId);
+    }
+
+
 }

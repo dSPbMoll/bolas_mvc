@@ -2,10 +2,19 @@ package asteroid.view;
 
 import javax.swing.*;
 import asteroid.controller.Controller;
-import asteroid.model.Asteroid;
+import asteroid.controller.entity.EntityType;
+import asteroid.dto.BodyDto;
+import asteroid.dto.EntityParamsDto;
+import asteroid.dto.ShipMovementDto;
+import asteroid.view.renderable.Renderable;
+import config.player.ControlConfig;
+import config.simulation.WorldConfig;
+import helpers.CardinalDirection;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static java.lang.Thread.sleep;
 
@@ -21,10 +30,13 @@ public class View extends JFrame {
     private Timer autoTimer;
     private Image backgroundImage;
 
-    public View(Controller controller) {
+    public View(Controller controller,
+                HashMap<ControlConfig, String> playerControlConfigs,
+                HashMap<WorldConfig, Integer> worldConfigs) {
+
         this.controller = controller;
         this.controlPanel = new ControlPanel(this);
-        this.viewer = new Viewer(this);
+        this.viewer = new Viewer(this, playerControlConfigs, worldConfigs);
         this.dataPanel = new DataPanel(this);
 
         buildWindow();
@@ -113,23 +125,15 @@ public class View extends JFrame {
                         JOptionPane.WARNING_MESSAGE
                 );
             } else{
-                addAsteroid();
+                controller.generateEntityInLifeGenerator();
             }
         });
 
     }
 
     private void addAutoListener(){
-        controlPanel.getAutoButton().addActionListener(e->{
-            if(controlPanel.getAutoButton().isSelected()){
-                if(autoTimer!=null){
-                    autoTimer.stop();
-                }
-                autoTimer=new Timer(2000, ev-> controller.addAsteroid());
-                autoTimer.start();
-            } else if (autoTimer!=null) {
-                autoTimer.stop();
-            }
+        controlPanel.getAutoButton().addActionListener(e -> {
+            controller.setRunningLifeGenerator(controlPanel.getAutoButton().isSelected());
         });
     }
 
@@ -137,8 +141,9 @@ public class View extends JFrame {
         controlPanel.getPlayButton().addActionListener(e -> {
             if (viewer.getThread() == null) {
                 viewer.startViewer();
-                controller.setPaused(false);
-                controller.startPlayerThread();
+                controller.startLifeGenerator();
+                controller.startAllMovingBodies();
+                viewer.startAllRenderableSS();
             }
         });
     }
@@ -147,8 +152,9 @@ public class View extends JFrame {
         controlPanel.getPauseButton().addActionListener(e -> {
             if (viewer.getThread() != null) {
                 viewer.pauseViewer();
-                controller.setPaused(true);
-                controller.stopPlayerThread();
+                controller.stopLifeGenerator();
+                controller.stopAllMovingBodies();
+                viewer.stopAllRenderableSS();
             }
         });
     }
@@ -162,9 +168,8 @@ public class View extends JFrame {
                         JOptionPane.WARNING_MESSAGE
                 );
             } else{
-                stopAllAsteroids();
-                getAllAsteroids().clear();
-                //getAllRooms().clear();
+                controller.stopAllMovingBodies();
+                deleteAllEntities();
                 viewer.restartViewer();
             }
         });
@@ -178,19 +183,8 @@ public class View extends JFrame {
 
     // ---------------------------------- LINKING METHODS ----------------------------------
 
-    public void addAsteroid() {
-        controller.addAsteroid();
-    }
-
-    /*
-    public void addRoom(Position position, Dimension size) {
-        controller.addRoom(position, size);
-    }
-
-     */
-
-    public ArrayList<Asteroid> getAllAsteroids() {
-        return controller.getAllAsteroids();
+    public ArrayList<BodyDto> getAllBodyDtosByType(EntityType type) {
+        return controller.getAllBodyDtosByType(type);
     }
 
     public int getViewerWidth() {
@@ -217,12 +211,21 @@ public class View extends JFrame {
         return controlPanel.getMaxAsteroidSizeSliderValue();
     }
 
-    /*
-    public ArrayList<Room> getAllRooms() {
-        return controller.getAllRooms();
+    public void addRenderable(Renderable renderable) {
+        this.viewer.addRenderable(renderable);
     }
 
-     */
+    public void deleteRenderable(EntityType type, long entityId) {
+        viewer.deleteRenderable(type, entityId);
+    }
+
+    public void deleteAllRenderables() {
+        viewer.deleteAllRenderables();
+    }
+
+    public void sendNewEntityParamsToLifeGenerator(EntityParamsDto params) {
+        controller.sendNewEntityParamsToLifeGenerator(params);
+    }
 
     // ------------- DATA PANEL
 
@@ -238,41 +241,29 @@ public class View extends JFrame {
         this.dataPanel.updateAsteroidCount(asteroidCount);
     }
 
-    public void stopAllAsteroids(){
-        controller.stopAllAsteroids();
+    public void stopAllMovingBodies(){
+        controller.stopAllMovingBodies();
+    }
+
+    public void deleteAllEntities() {
+        controller.deleteAllEntities();
     }
 
     // ------------- PLAYER
 
-    public Dimension getPlayerPosition() {
-        return controller.getPlayerPosition();
+    public void setPlayerMoving(int entityId, boolean b, CardinalDirection direction) {
+        controller.setPlayerMoving(entityId, b, direction);
     }
 
-    public Dimension getPlayerSize() {
-        return this.controller.getPlayerSize();
+    public void setPlayerShooting(long playerEntityId, boolean b) {
+        controller.setPlayerShooting(playerEntityId, b);
     }
 
-    public void setPlayerMovingUp(boolean b) {
-        controller.setPlayerMovingUp(b);
+    public void calcRotationAngleOfPlayer(Point2D.Double mouseP, int entityId) {
+        controller.calcRotationAngleOfPlayer(mouseP, 1);
     }
 
-    public void setPlayerMovingLeft(boolean b) {
-        controller.setPlayerMovingLeft(b);
-    }
-
-    public void setPlayerMovingRight(boolean b) {
-        controller.setPlayerMovingRight(b);
-    }
-
-    public void setPlayerMovingDown(boolean b) {
-        controller.setPlayerMovingDown(b);
-    }
-
-    public Dimension getCursorPositionInViewer() {
-        return viewer.getCursorPosition();
-    }
-
-    public double getPlayerRotationAngle() {
-        return controller.getPlayerRotationAngle();
+    public ShipMovementDto getShipMovementDtoOfPlayer(long entityId) {
+        return controller.getShipMovementDtoOfPlayer(entityId);
     }
 }

@@ -1,12 +1,13 @@
 package asteroid.model;
 
 import asteroid.dto.Position;
+import asteroid.model.body.BodyAsteroid;
 
 import java.awt.*;
 
 public class Room {
     private boolean isOccupied;
-    private Asteroid asteroidInside;
+    private BodyAsteroid asteroidInside;
     private Position position;
     private Dimension size;
 
@@ -20,12 +21,12 @@ public class Room {
         return isOccupied;
     }
     public void setIsOccupied(boolean isOccupied) {this.isOccupied = isOccupied;}
-    public Asteroid getBallInside() {return this.asteroidInside;}
-    public void setBallInside(Asteroid asteroid) {this.asteroidInside = asteroid;}
+    public BodyAsteroid getBallInside() {return this.asteroidInside;}
+    public void setBallInside(BodyAsteroid asteroid) {this.asteroidInside = asteroid;}
     public Position getPosition() {return this.position;}
     public Dimension getSize() {return this.size;}
 
-    synchronized boolean enteringBall(Asteroid asteroid) {
+    synchronized boolean enteringBall(BodyAsteroid asteroid) {
         if (this.asteroidInside == null) {
             //If the room is empty
 

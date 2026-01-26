@@ -1,44 +1,43 @@
 package asteroid.model;
 
 import asteroid.controller.Controller;
+import asteroid.controller.entity.EntityType;
+import asteroid.dto.BodyDto;
+import asteroid.dto.ShipMovementDto;
+import asteroid.model.body.*;
+import asteroid.physics.ScalarPhysicalVariable;
+import asteroid.physics.VectorialPhysicalVariable;
+import config.simulation.WorldConfig;
+import helpers.CardinalDirection;
 
-import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.Math.abs;
 
 public class Model {
     private final Controller controller;
-    private ArrayList<Asteroid> asteroidList;
-    //private ArrayList<Room> rectangleRoomList;
-    private volatile boolean isPaused = false;
-    private Player player;
+    private final HashMap<EntityType, CopyOnWriteArrayList<Body>> bodies;
+    private final HashMap<WorldConfig, Integer> worldConfigs;
 
-    public Model(Controller controller) {
+    public Model(Controller controller, HashMap<WorldConfig, Integer> worldConfigs) {
         this.controller = controller;
-        this.asteroidList = new ArrayList<>();
-        //this.rectangleRoomList = new ArrayList<>();
+        this.worldConfigs = worldConfigs;
+
+        bodies = new HashMap<>();
+        bodies.put(EntityType.ASTEROID, new CopyOnWriteArrayList<>());
+        bodies.put(EntityType.PLAYER, new CopyOnWriteArrayList<>());
+        bodies.put(EntityType.PLANET, new CopyOnWriteArrayList<>());
+        bodies.put(EntityType.SHOT, new CopyOnWriteArrayList<>());
     }
 
     // ------------------------------------ GETTERS & SETTERS ------------------------------------
 
-    public boolean getIsPaused(){
-        return isPaused;
-    }
-
-    public void setIsPaused(boolean paused){
-        this.isPaused =paused;
-    }
-
-    /*
-    synchronized public ArrayList<Room> getAllRooms() {
-        return this.rectangleRoomList;
-    }
-
-     */
-
-    synchronized public ArrayList<Asteroid> getAllAsteroids() {
-        return asteroidList;
+    public ArrayList<BodyDto> getAllBodyDtosByType(EntityType type) {
+        return turnBodiesIntoDtos(type);
     }
 
     // ------------------------------------ LINKING METHODS ------------------------------------
@@ -65,220 +64,188 @@ public class Model {
 
     // ------------- PLAYER
 
-    public Dimension getPlayerPosition() {
-        return this.player.getPostion();
+    private Body searchBody(EntityType type, long entityId) {
+        for (Body body : bodies.get(EntityType.PLAYER)) {
+            if (entityId == body.getEntityId()) return body;
+        }
+        return null;
     }
 
-    public Dimension getPlayerSize() {
-        return this.player.getSize();
+    public void setPlayerMoving(int entityId, boolean b, CardinalDirection direction) {
+        Body body = searchBody(EntityType.PLAYER, entityId);
+        if (body instanceof BodyPlayer) ((BodyPlayer)body).setMoving(b, direction);
     }
 
-    public void addPlayer() {
-        this.player = new Player(this);
+    public void calcRotationAngleOfPlayer(Point2D.Double mouseP, int entityId) {
+        Body body = searchBody(EntityType.PLAYER, entityId);
+        if (body instanceof BodyPlayer) ((BodyPlayer) body).calcRotationAngle(mouseP);
     }
 
-    public void startPlayerThread() {
-        this.player.startThread();
+    public void setPlayerShooting(long entityId, boolean b) {
+        Body body = searchBody(EntityType.PLAYER, entityId);
+        if (body instanceof BodyPlayer) ((BodyPlayer) body).setShooting(b);
     }
 
-    public void stopPlayerThread() {
-        this.player.stopThread();
+    public void generatePlayerShot(long entityId, Point2D.Double position, double rotationAngle, int bulletSpeed) {
+        controller.generatePlayerShot(entityId, position, rotationAngle, bulletSpeed);
     }
 
-    public void setPlayerMovingUp(boolean b) {
-        player.setMovingUp(b);
+    public ShipMovementDto getShipMovementDtoOfPlayer(long entityId) {
+        Body body = searchBody(EntityType.PLAYER, entityId);
+        if (body instanceof BodyPlayer) return ((BodyPlayer) body).getShipMovementDto();
+        return null;
     }
 
-    public void setPlayerMovingLeft(boolean b) {
-        player.setMovingLeft(b);
-    }
+    // ==================================== DTO BUILDING ====================================
 
-    public void setPlayerMovingRight(boolean b) {
-        player.setMovingRight(b);
-    }
-
-    public void setPlayerMovingDown(boolean b) {
-        player.setMovingDown(b);
-    }
-
-    public Dimension getCursorPositionInViewer() {
-        return controller.getCursorPositionInViewer();
-    }
-
-    public double getPlayerRotationAngle() {
-        return player.getRotationAngle();
+    private ArrayList<BodyDto> turnBodiesIntoDtos(EntityType type) {
+        ArrayList<BodyDto> bodyDtos = new ArrayList<>();
+        for (Body body : bodies.get(type)) {
+            bodyDtos.add(new BodyDto(
+                    body.getType(),
+                    body.getEntityId(),
+                    body.getVectorialPhysicalValue(VectorialPhysicalVariable.POSITION),
+                    body.getSize(),
+                    body.getScalarPhysicalValue(ScalarPhysicalVariable.ROTATION_ANGLE)
+            ));
+        }
+        return bodyDtos;
     }
 
     // ------------------------------------ SIMULATION MODIFYING METHODS ------------------------------------
 
-    synchronized public void addAsteroid() {
-        Asteroid asteroid = new Asteroid(this);
-        asteroid.startThread();
-        asteroidList.add(asteroid);
-    }
-
-    public void stopAllAsteroids(){
-        for (Asteroid a : asteroidList){
-            a.stopThread();
+    public void startAllMovingBodies(){
+        for (Map.Entry<EntityType, CopyOnWriteArrayList<Body>> entry : this.bodies.entrySet()) {
+            for (Body body : entry.getValue()) {
+                if (body instanceof MovingBody) {
+                    ((MovingBody) body).startThread();
+                }
+            }
         }
     }
 
-    /*
-    public void addRoom(Position position, Dimension size) {
-        Room room = new Room(this, position, size);
-        rectangleRoomList.add(room);
+    public void stopAllMovingBodies(){
+        for (Map.Entry<EntityType, CopyOnWriteArrayList<Body>> entry : this.bodies.entrySet()) {
+            for (Body body : entry.getValue()) {
+                if (body instanceof MovingBody) {
+                    ((MovingBody) body).stopThread();
+                }
+            }
+        }
     }
 
-     */
+    public void deleteAllBodies() {
+        for (Map.Entry<EntityType, CopyOnWriteArrayList<Body>> entry : bodies.entrySet()) {
+            entry.getValue().clear();
+        }
+    }
+
+    public void deleteBody(EntityType type, long entityId) {
+        CopyOnWriteArrayList<Body> iteratedList = bodies.get(type);
+
+        for (Body body : iteratedList) {
+            if (body.getEntityId() == entityId) {
+                if (body instanceof MovingBody) ((MovingBody) body).stopThread();
+                iteratedList.remove(body);
+            }
+        }
+    }
+
+    public void addBody(Body body) {
+        body.setModel(this);
+        boolean added = false;
+
+        switch (body.getType()) {
+            case ASTEROID:
+                bodies.get(EntityType.ASTEROID).add(body);
+                if (body instanceof BodyAsteroid) ((BodyAsteroid) body).startThread();
+                added = true;
+                break;
+
+            case PLAYER:
+                bodies.get(EntityType.PLAYER).add(body);
+                if (body instanceof BodyPlayer) ((BodyPlayer) body).startThread();
+                added = true;
+                break;
+
+            case PLANET:
+                bodies.get(EntityType.PLANET).add(body);
+                added = true;
+                break;
+
+            case SHOT:
+                bodies.get(EntityType.SHOT).add(body);
+                if (body instanceof BodyShot) ((BodyShot) body).startThread();
+                added = true;
+                break;
+        }
+        if (!added) throw new NullPointerException("Could not add entity to the Model's entities list");
+    }
 
     // ------------------------------------ SIMULATION CONTROL METHODS ------------------------------------
     // ---------- GENERAL EVENT PROCESSING
 
     /**
-     * @param asteroid is the asteroid that calls the method for moving
+     * @param movingBody is the asteroid that calls the method for moving
      * @param attemptedPosition is the position the asteroid who called the function is willing to take
      * @return true -> the asteroid is allowed to move; false -> the movement got denied;
      */
-    synchronized public void processAsteroidEvent(Asteroid asteroid, Dimension attemptedPosition) throws InterruptedException {
-
-        /*
-        int attemptedX = attemptedPosition.width;
-        int attemptedY = attemptedPosition.height;
-
-        // Register how the asteroid wants to interact with each room
-        Map<Room, EventType> interactionList = new HashMap<>();
-
-        for (Room room : rectangleRoomList) {
-
-            boolean attemptedPositionIsInRoom = ((attemptedX >= room.getPosition().width && attemptedX <= (room.getPosition().width + room.getSize().width))
-                    && (attemptedY >= room.getPosition().height && attemptedY <= (room.getPosition().height + room.getSize().height)));
-
-            if (!attemptedPositionIsInRoom && room.getAsteroidInside() != asteroid) {
-                //If the asteroid is moving without interacting with the room
-                interactionList.put(room, EventType.MOVE_ASTEROID);
-
-            } else if ((!attemptedPositionIsInRoom) && room.getAsteroidInside() == asteroid) {
-                //If the asteroid is in the room and is attempting to exit from it
-                interactionList.put(room, EventType.ASTEROID_EXITS_ROOM);
-
-            } else if (attemptedPositionIsInRoom && room.getAsteroidInside() == asteroid) {
-                //If the asteroid is moving inside the room
-                interactionList.put(room, EventType.ASTEROID_MOVES_INSIDE_ROOM);
-
-            } else if (attemptedPositionIsInRoom && room.getAsteroidInside() != asteroid) {
-                //If the asteroid is trying to enter the room
-                if (room.getIsOccupied()) {
-                    //If a asteroid is already in the room
-                    interactionList.put(room, EventType.ASTEROID_ENTERS_OCCUPIED_ROOM);
-
-                } else {
-                    //If the room is free so the asteroid may enter
-                    interactionList.put(room, EventType.ASTEROID_ENTERS_FREE_ROOM);
-                }
-
-            }
-        }
-
-         */
+    synchronized public void processMovingBodyEvent(MovingBody movingBody, Point2D.Double attemptedPosition) {
 
         boolean validMovement = true;
-        /*
-        for (Room room : rectangleRoomList) {
-            if (interactionList.get(room).equals(EventType.ASTEROID_ENTERS_OCCUPIED_ROOM)) {
-                validMovement = false;
-            }
-        }
-
-         */
 
         if (validMovement) {
-
             /*
-            for (Map.Entry<Room, EventType> interaction : interactionList.entrySet()) {
-                Room room = interaction.getKey();
-                EventType event = interaction.getValue();
+            int diameter = 0;
 
-                controller.asteroidEventManager(event, room, asteroid);
-            }
+            EntitySize size = movingBody.getSize();
+            if (size instanceof CircularSize) diameter = ((CircularSize) size).getDiameter();
+            if (size instanceof RectangularSize) diameter = (int)((RectangularSize) size).getValues().getX();
 
              */
 
-            int diameter = asteroid.getDIAMETER();
+            if (attemptedPosition.x <= 0) {
+                controller.movingBodyEventManager(EventType.WEST_LIMIT_REACHED, movingBody);
 
-            if (attemptedPosition.width - diameter <= 0) {
-                controller.asteroidEventManager(EventType.WEST_LIMIT_REACHED, asteroid);
+            } else if (attemptedPosition.x >= worldConfigs.get(WorldConfig.WIDTH)) {
+                controller.movingBodyEventManager(EventType.EAST_LIMIT_REACHED, movingBody);
 
-            } else if (attemptedPosition.width + diameter >= getViewerWidth()) {
-                controller.asteroidEventManager(EventType.EAST_LIMIT_REACHED, asteroid);
+            } else if (attemptedPosition.y <= 0) {
+                controller.movingBodyEventManager(EventType.NORTH_LIMIT_REACHED, movingBody);
 
-            } else if (attemptedPosition.height - diameter <= 0) {
-                controller.asteroidEventManager(EventType.NORTH_LIMIT_REACHED, asteroid);
-
-            } else if (attemptedPosition.height + diameter >= getViewerHeight()) {
-                controller.asteroidEventManager(EventType.SOUTH_LIMIT_REACHED, asteroid);
+            } else if (attemptedPosition.y >= worldConfigs.get(WorldConfig.HEIGHT)) {
+                controller.movingBodyEventManager(EventType.SOUTH_LIMIT_REACHED, movingBody);
             }
 
-            asteroid.setPosition(attemptedPosition);
+            try {
+                movingBody.setPosition(attemptedPosition);
+            } catch (NullPointerException e) {
+                System.out.println("Deleted entity " + movingBody.getEntityId() + " successfully");
+            }
+
         }
     }
 
     // ---------- MAP BORDERS INTERACTION
 
-    public void northLimitBounce(Asteroid asteroid) {
-        Dimension speed = asteroid.getSpeed();
-        speed.setSize(new Dimension(speed.width, abs(speed.height)));
+    public void northLimitBounce(MovingBody movingBody) {
+        Point2D.Double speed = movingBody.getSpeed();
+        speed.setLocation(new Point2D.Double(speed.x, abs(speed.y)));
     }
 
-    public void southLimitBounce(Asteroid asteroid) {
-        Dimension speed = asteroid.getSpeed();
-        speed.setSize(new Dimension(speed.width, -abs(speed.height)));
+    public void southLimitBounce(MovingBody movingBody) {
+        Point2D.Double speed = movingBody.getSpeed();
+        speed.setLocation(new Point2D.Double(speed.x, -abs(speed.y)));
     }
 
-    public void eastLimitBounce(Asteroid asteroid) {
-        Dimension speed = asteroid.getSpeed();
-        speed.setSize(new Dimension(-abs(speed.width), speed.height));
+    public void eastLimitBounce(MovingBody movingBody) {
+        Point2D.Double speed = movingBody.getSpeed();
+        speed.setLocation(new Point2D.Double(-abs(speed.x), speed.y));
     }
 
-    public void westLimitBounce(Asteroid asteroid) {
-        Dimension speed = asteroid.getSpeed();
-        speed.setSize(new Dimension(abs(speed.width), speed.height));
+    public void westLimitBounce(MovingBody movingBody) {
+        Point2D.Double speed = movingBody.getSpeed();
+        speed.setLocation(new Point2D.Double(abs(speed.x), speed.y));
     }
-
-    // ---------- ASTEROID - ROOM INTERACTIONS
-
-    /*
-    public void asteroidEntersOccupiedRoom(Asteroid asteroid, Room room) {
-        synchronized (room) {
-            try {
-                while (room.getIsOccupied()) {
-                    room.wait();
-                }
-                room.setAsteroidInside(asteroid);
-                room.setIsOccupied(true);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    synchronized public void asteroidEntersFreeRoom(Asteroid asteroid, Room room) {
-        room.setAsteroidInside(asteroid);
-        room.setIsOccupied(true);
-    }
-
-    public void asteroidMovesInsideRoom(Asteroid asteroid, Room room) {
-
-    }
-
-    public void asteroidExitsRoom(Asteroid asteroid, Room room) {
-        synchronized (room) {
-            room.setAsteroidInside(null);
-            room.setIsOccupied(false);
-            room.notifyAll();
-        }
-    }
-
-     */
-
 
 }

@@ -1,100 +1,62 @@
 package asteroid.physics;
 
-import java.awt.*;
+import asteroid.dto.PhysicValuesDto;
+import asteroid.dto.ShipMovementDto;
+import helpers.CardinalDirection;
 
-public class ShipPhysicsEngine implements PhysicsEngine {
+import java.awt.geom.Point2D;
+import java.util.HashMap;
 
-    private long lastUpdateMS;
+public class ShipPhysicsEngine extends BasicPhysicsEngine {
+    protected final double motorForce = 300;   // push force by inputs
+    //protected final double friction = 0.985;     friction / resistance
+    protected final double maxSpeed = 750;     // speed limit
 
-    private double posX, posY;
-    private double speedX, speedY;
-    private double accX, accY;
+    protected boolean motorsPushingUp;
+    protected boolean motorsPushingDown;
+    protected boolean motorsPushingLeft;
+    protected boolean motorsPushingRight;
 
-    private double gravityX = 0;
-    private double gravityY = 0;
-
-    private final double motorForce = 300;   // push force by inputs
-    private final double friction = 0.985;    // friction / resistance
-    private final double maxSpeed = 750;     // speed limit
-
-    private boolean motorsPushingUp;
-    private boolean motorsPushingDown;
-    private boolean motorsPushingLeft;
-    private boolean motorsPushingRight;
-
-    public ShipPhysicsEngine() {
-        this.lastUpdateMS = System.currentTimeMillis();
-
-        this.posX = 300;
-        this.posY = 300;
-
-        this.speedX = 0;
-        this.speedY = 0;
-
-        this.accX = 0;
-        this.accY = 0;
+    public ShipPhysicsEngine(Point2D.Double position, Point2D.Double speed, double rotationAngle, Point2D.Double acceleration, Point2D.Double gravity, double friction) {
+        super(position, speed, rotationAngle, acceleration, gravity);
+        
+        scalarValues.put(ScalarPhysicalVariable.FRICTION, friction);
     }
 
     // ------------------- GETTERS & SETTERS -------------------
 
-    public void setLastUpdateMS(long setLastUpdateMS) { this.lastUpdateMS = setLastUpdateMS; }
-    public long getLastUpdateMS() { return this.lastUpdateMS; }
-
-    public void setPosition(Dimension position) {
-        this.posX = position.getWidth();
-        this.posY = position.getHeight();
-    }
-
-    public Dimension getPosition() {
-        return new Dimension((int) posX, (int) posY);
-    }
-
-    public void setSpeed(Dimension speed) {
-        this.speedX = speed.getWidth();
-        this.speedY = speed.getHeight();
-    }
-
-    public Dimension getSpeed() {
-        return new Dimension((int) speedX, (int) speedY);
-    }
-
-    public void setAcceleration(Dimension acceleration) {
-        this.accX = acceleration.getWidth();
-        this.accY = acceleration.getHeight();
-    }
-
-    public Dimension getAcceleration() {
-        return new Dimension((int) accX, (int) accY);
-    }
-
-    public void setGravity(Dimension gravity) {
-        this.gravityX = gravity.getWidth();
-        this.gravityY = gravity.getHeight();
-    }
-
-    public Dimension getGravity() {
-        return new Dimension((int) gravityX, (int) gravityY);
-    }
 
     // ------------------- MOTORS -------------------
 
-    public void setMotorsPushingUp(boolean b)    { this.motorsPushingUp = b; }
-    public void setMotorsPushingDown(boolean b)  { this.motorsPushingDown = b; }
-    public void setMotorsPushingLeft(boolean b)  { this.motorsPushingLeft = b; }
-    public void setMotorsPushingRight(boolean b) { this.motorsPushingRight = b; }
+    public void setMoving(boolean b, CardinalDirection direction) {
+        switch(direction) {
+            case CardinalDirection.NORTH -> this.motorsPushingUp = b;
+            case CardinalDirection.SOUTH -> this.motorsPushingDown = b;
+            case CardinalDirection.EAST -> this.motorsPushingRight = b;
+            case CardinalDirection.WEST -> this.motorsPushingLeft = b;
+        }
+    }
+
 
     // ------------------- PHYSICS CALCULATIONS -------------------
 
-    public Dimension[] calculateNextPhysicalValues() {
-
+    @Override
+    public PhysicValuesDto calculateNextPhysicalValues() {
         long now = System.currentTimeMillis();
         double delta = (now - lastUpdateMS) / 1000.0;
         lastUpdateMS = now;
 
+        Point2D.Double position = getVectorialPhysicalValue(VectorialPhysicalVariable.POSITION);
+        Point2D.Double speed = getVectorialPhysicalValue(VectorialPhysicalVariable.SPEED);
+        Point2D.Double acceleration = getVectorialPhysicalValue(VectorialPhysicalVariable.ACCELERATION);
+        Point2D.Double gravity = getVectorialPhysicalValue(VectorialPhysicalVariable.GRAVITY);
+
+        double friction = getScalarPhysicalValue(ScalarPhysicalVariable.FRICTION);
+
         //------------------- Acceleration by motors -------------------
 
-        double accelX = gravityX;
-        double accelY = gravityY;
+        double accelX = gravity.getX();
+        double accelY = gravity.getY();
 
         if (motorsPushingUp)    accelY -= motorForce;
         if (motorsPushingDown)  accelY += motorForce;
@@ -103,8 +65,8 @@ public class ShipPhysicsEngine implements PhysicsEngine {
 
         //------------------- Update speed -------------------
 
-        double spdX = speedX;
-        double spdY = speedY;
+        double spdX = speed.getX();
+        double spdY = speed.getY();
 
         spdX += accelX * delta;
         spdY += accelY * delta;
@@ -116,27 +78,32 @@ public class ShipPhysicsEngine implements PhysicsEngine {
 
         //------------------- Limitate speed -------------------
 
-        double speed = Math.sqrt(spdX * spdX + spdY * spdY);
-        if (speed > maxSpeed) {
-            double factor = maxSpeed / speed;
+        double spd = Math.sqrt(spdX * spdX + spdY * spdY);
+        if (spd > maxSpeed) {
+            double factor = maxSpeed / spd;
             spdX *= factor;
             spdY *= factor;
         }
 
         //------------------- Update position -------------------
 
-        double positX = posX;
-        double positY = posY;
+        double posX = position.getX();
+        double posY = position.getY();
 
-        positX += spdX * delta;
-        positY += spdY * delta;
+        posX += spdX * delta;
+        posY += spdY * delta;
 
-        //------------------- Return Dimension[] -------------------
+        //------------------- Return -------------------
 
-        Dimension[] result = new Dimension[3];
-        result[0] = new Dimension((int)positX, (int)positY);
-        result[1] = new Dimension((int)spdX, (int)spdY);
-        result[2] = new Dimension((int)accelX, (int)accelY);
-        return result;
+        HashMap<VectorialPhysicalVariable, Point2D.Double> vectPhyVals = new HashMap<>();
+        vectPhyVals.put(VectorialPhysicalVariable.POSITION, new Point2D.Double(posX, posY));
+        vectPhyVals.put(VectorialPhysicalVariable.SPEED, new Point2D.Double(spdX, spdY));
+        vectPhyVals.put(VectorialPhysicalVariable.ACCELERATION, new Point2D.Double(accelX, accelY));
+
+        return new PhysicValuesDto(vectPhyVals);
+    }
+
+    public ShipMovementDto getShipMovementDto(double rotationAngle) {
+        return new ShipMovementDto(motorsPushingUp, motorsPushingDown, motorsPushingLeft, motorsPushingRight, rotationAngle);
     }
 }

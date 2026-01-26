@@ -1,92 +1,55 @@
 package asteroid.physics;
 
+import asteroid.dto.PhysicValuesDto;
+
 import java.awt.*;
+import java.awt.geom.Point2D;
+import java.util.HashMap;
 
-public class BasicPhysicsEngine implements PhysicsEngine {
+public class BasicPhysicsEngine extends PhysicsEngine {
 
-    private long lastUpdateMS;
-    private Dimension position;
-    private Dimension speed;
-    private Dimension gravity;
-    private Dimension acceleration;
-
-    public BasicPhysicsEngine() {
-        this.lastUpdateMS = System.currentTimeMillis();
-        this.position = new Dimension(0, 0);
-        this.speed = new Dimension(0, 0);
-        this.gravity = new Dimension(0, 0);
-        this.acceleration = new Dimension(0, 0);
+    public BasicPhysicsEngine(Point2D.Double position, Point2D.Double speed, double rotationAngle, Point2D.Double acceleration, Point2D.Double gravity) {
+        super(position, speed, rotationAngle);
+        addVectorialPhysicalValue(VectorialPhysicalVariable.ACCELERATION, acceleration);
+        addVectorialPhysicalValue(VectorialPhysicalVariable.GRAVITY, gravity);
     }
 
-    public void setLastUpdateMS(long setLastUpdateMS) {
-        this.lastUpdateMS = setLastUpdateMS;
-    }
-
-    public long getLastUpdateMS() {
-        return this.lastUpdateMS;
-    }
-
-    public void setPosition(Dimension position) {
-        this.position = position;
-    }
-
-    public Dimension getPosition() {
-        return this.position;
-    }
-
-    public void setSpeed(Dimension speed) {
-        this.speed = speed;
-    }
-
-    public Dimension getSpeed() {
-        return this.speed;
-    }
-
-    public void setGravity(Dimension gravity) {
-        this.gravity = gravity;
-    }
-
-    public Dimension getGravity() {
-        return this.gravity;
-    }
-
-    public void setAcceleration(Dimension acceleration) {
-        this.acceleration = acceleration;
-    }
-
-    public Dimension getAcceleration() {
-        return this.acceleration;
-    }
-
-    public Dimension[] calculateNextPhysicalValues() {
+    @Override
+    public PhysicValuesDto calculateNextPhysicalValues() {
 
         long newUpdateMS = System.currentTimeMillis();
-        float deltaTimeSeconds = (newUpdateMS - lastUpdateMS) /1000.0f;
+        float deltaTimeSeconds = (newUpdateMS - this.lastUpdateMS) /1000.0f;
+        Point2D.Double acceleration = getVectorialPhysicalValue(VectorialPhysicalVariable.ACCELERATION);
+        Point2D.Double gravity = getVectorialPhysicalValue(VectorialPhysicalVariable.GRAVITY);
+        Point2D.Double speed = getVectorialPhysicalValue(VectorialPhysicalVariable.SPEED);
+        Point2D.Double position = getVectorialPhysicalValue(VectorialPhysicalVariable.POSITION);
 
-        Dimension accel = new Dimension((int) Math.round(this.acceleration.getWidth() * deltaTimeSeconds),
-                (int) Math.round(this.acceleration.getHeight() * deltaTimeSeconds));
+        Point2D.Double accel = new Point2D.Double(
+                acceleration.getX() * deltaTimeSeconds,
+                acceleration.getY() * deltaTimeSeconds);
 
         // Combine gravity with accel
-        int accelX = (int) gravity.getWidth();
-        int accelY = (int) gravity.getHeight();
-        accel.setSize(accel.getWidth() + accelX, accel.getHeight() + accelY);
+        double accelX = gravity.getX();
+        double accelY = gravity.getY();
+        accel.setLocation(accel.getX() + accelX, accel.getY() + accelY);
 
         // Apply acceleration to the speed
-        int speedX = Math.round(speed.width + accel.width);
-        int speedY = Math.round(speed.height + accel.height);
-        Dimension spd = new Dimension(speedX, speedY);
+        double speedX = speed.x + accel.x;
+        double speedY = speed.y + accel.y;
+        Point2D.Double spd = new Point2D.Double(speedX, speedY);
 
         // Calculate new position based on the updated speed
-        int pX = (int) position.getWidth() + speedX;
-        int pY = (int) position.getHeight() + speedY;
-        Dimension pos = new Dimension(pX, pY);
+        double pX = position.getX() + speedX;
+        double pY = position.getY() + speedY;
+        Point2D.Double pos = new Point2D.Double(pX, pY);
 
-        //Prepare the physical values that will be given to the caller
-        Dimension[] physicalValues = new Dimension[3];
-        physicalValues[0] = pos;
-        physicalValues[1] = spd;
-        physicalValues[2] = accel;
+        //Prepare the physical values that will be returned
+        HashMap<VectorialPhysicalVariable, Point2D.Double> phyVals = new HashMap<>();
+        phyVals.put(VectorialPhysicalVariable.POSITION, pos);
+        phyVals.put(VectorialPhysicalVariable.SPEED, spd);
+        phyVals.put(VectorialPhysicalVariable.ACCELERATION, accel);
+        phyVals.put(VectorialPhysicalVariable.GRAVITY, gravity);
 
-        return physicalValues;
+        return new PhysicValuesDto(phyVals);
     }
 }
