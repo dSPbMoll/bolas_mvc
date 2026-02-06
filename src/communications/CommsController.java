@@ -78,6 +78,7 @@ public class CommsController {
         String selfIP = null;
         try {
             selfIP = InetAddress.getLocalHost().getHostAddress();
+            System.out.println("Your IP is: " + selfIP);
         } catch(UnknownHostException e) {
             System.out.println("Failed getting selfIP in CommsController");
         }
