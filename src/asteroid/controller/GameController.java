@@ -11,27 +11,34 @@ import asteroid.model.body.MovingBody;
 import asteroid.view.View;
 import asteroid.model.Model;
 import asteroid.view.renderable.Renderable;
+import communications.dto.Frame;
+import communications.dto.PayloadComms;
 import config.player.ControlConfig;
 import config.simulation.AsteroidConfig;
 import config.simulation.WorldConfig;
 import helpers.CardinalDirection;
+import master.MasterController;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Controller {
+public class GameController {
+    private final MasterController masterController;
     private final Model model;
     private final View view;
     private final HashMap<EntityType, CopyOnWriteArrayList<Long>> entities;
     private LifeGenerator lifeGenerator;
 
-    public Controller(
+    public GameController(
+            MasterController masterController,
             HashMap<ControlConfig, String> playerControlConfigs,
             HashMap<WorldConfig, Integer> worldConfigs,
             HashMap<AsteroidConfig, Integer> asteroidConfigs) {
 
+        this.masterController = masterController;
         this.model = new Model(this, worldConfigs);
         this.view = new View(this, playerControlConfigs, worldConfigs);
         this.lifeGenerator = new LifeGenerator(this, worldConfigs, asteroidConfigs);
@@ -79,28 +86,7 @@ public class Controller {
     }
 
     public void movingBodyEventManager(EventType event, MovingBody movingBody) {
-        switch (event) {
-            case NORTH_LIMIT_REACHED:
-                deleteEntity(movingBody.getType(), movingBody.getEntityId());
-                //model.northLimitBounce(movingBody);
-                break;
-
-            case SOUTH_LIMIT_REACHED:
-                deleteEntity(movingBody.getType(), movingBody.getEntityId());
-                //model.southLimitBounce(movingBody);
-                break;
-
-            case EAST_LIMIT_REACHED:
-                deleteEntity(movingBody.getType(), movingBody.getEntityId());
-                //model.eastLimitBounce(movingBody);
-                break;
-
-            case WEST_LIMIT_REACHED:
-                deleteEntity(movingBody.getType(), movingBody.getEntityId());
-                //model.westLimitBounce(movingBody);
-                break;
-
-        }
+        masterController.movingBodyEventManager(event, movingBody);
     }
 
     // ------------------------------------- GETTERS & SETTERS -------------------------------------
@@ -206,5 +192,7 @@ public class Controller {
         entities.get(type).remove(entityId);
     }
 
-
+    public void processEnteringBody(PayloadComms payloadComms) {
+        lifeGenerator.createMovingBodyFromFrame(payloadComms);
+    }
 }

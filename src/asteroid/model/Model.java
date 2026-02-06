@@ -1,12 +1,12 @@
 package asteroid.model;
 
-import asteroid.controller.Controller;
+import asteroid.controller.GameController;
 import asteroid.controller.entity.EntityType;
 import asteroid.dto.BodyDto;
 import asteroid.dto.ShipMovementDto;
 import asteroid.model.body.*;
-import asteroid.physics.ScalarPhysicalVariable;
-import asteroid.physics.VectorialPhysicalVariable;
+import asteroid.model.physics.ScalarPhysicalVariable;
+import asteroid.model.physics.VectorialPhysicalVariable;
 import config.simulation.WorldConfig;
 import helpers.CardinalDirection;
 
@@ -19,11 +19,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static java.lang.Math.abs;
 
 public class Model {
-    private final Controller controller;
+    private final GameController controller;
     private final HashMap<EntityType, CopyOnWriteArrayList<Body>> bodies;
     private final HashMap<WorldConfig, Integer> worldConfigs;
 
-    public Model(Controller controller, HashMap<WorldConfig, Integer> worldConfigs) {
+    public Model(GameController controller, HashMap<WorldConfig, Integer> worldConfigs) {
         this.controller = controller;
         this.worldConfigs = worldConfigs;
 

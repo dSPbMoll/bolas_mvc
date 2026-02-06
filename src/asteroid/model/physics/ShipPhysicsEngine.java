@@ -1,4 +1,4 @@
-package asteroid.physics;
+package asteroid.model.physics;
 
 import asteroid.dto.PhysicValuesDto;
 import asteroid.dto.ShipMovementDto;

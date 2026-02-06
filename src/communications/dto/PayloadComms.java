@@ -1,20 +1,25 @@
-package asteroid.dto;
+package communications.dto;
 
 import asteroid.controller.entity.EntityType;
+
 import java.awt.geom.Point2D;
 
-public class BodyDto {
+public class PayloadComms {
     public final EntityType type;
-    public final long entityId;
     public final Point2D.Double position;
     public final Point2D.Double size;
     public final double rotationAngle;
+    public final int assetId;
+    public final Point2D.Double speed;
 
-    public BodyDto(EntityType type, long entityId, Point2D.Double position, Point2D.Double size, double rotationAngle) {
+    public PayloadComms(EntityType type, Point2D.Double position, Point2D.Double speed,
+            Point2D.Double size, double rotationAngle, int assetId) {
+
         this.type = type;
-        this.entityId = entityId;
         this.position = position;
+        this.speed = speed;
         this.size = size;
         this.rotationAngle = rotationAngle;
+        this.assetId = assetId;
     }
 }

@@ -1,4 +1,4 @@
-package asteroid.physics;
+package asteroid.model.physics;
 
 public enum VectorialPhysicalVariable {
     POSITION,

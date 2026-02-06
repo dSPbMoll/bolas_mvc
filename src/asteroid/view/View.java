@@ -1,7 +1,7 @@
 package asteroid.view;
 
 import javax.swing.*;
-import asteroid.controller.Controller;
+import asteroid.controller.GameController;
 import asteroid.controller.entity.EntityType;
 import asteroid.dto.BodyDto;
 import asteroid.dto.EntityParamsDto;
@@ -22,7 +22,7 @@ import static java.lang.Thread.sleep;
  * This class represents the window that the final user will see and interact with
  */
 public class View extends JFrame {
-    private final Controller controller;
+    private final GameController controller;
     private final ControlPanel controlPanel;
     private final Viewer viewer;
     private final DataPanel dataPanel;
@@ -30,7 +30,7 @@ public class View extends JFrame {
     private Timer autoTimer;
     private Image backgroundImage;
 
-    public View(Controller controller,
+    public View(GameController controller,
                 HashMap<ControlConfig, String> playerControlConfigs,
                 HashMap<WorldConfig, Integer> worldConfigs) {
 
@@ -39,7 +39,7 @@ public class View extends JFrame {
         this.viewer = new Viewer(this, playerControlConfigs, worldConfigs);
         this.dataPanel = new DataPanel(this);
 
-        buildWindow();
+        buildWindow(worldConfigs);
 
         viewer.setFocusable(true);
         viewer.requestFocusInWindow();
@@ -48,9 +48,9 @@ public class View extends JFrame {
 
     // ---------------------------------- WINDOW BUILDING ----------------------------------
 
-    private void buildWindow() {
+    private void buildWindow(HashMap<WorldConfig, Integer> worldConfig) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800,600);
+        setSize(worldConfig.get(WorldConfig.WIDTH), worldConfig.get(WorldConfig.WIDTH));
 
         ImagePanel content=new ImagePanel("src/img/galaxy4.jpg");
         content.setLayout(new GridBagLayout());

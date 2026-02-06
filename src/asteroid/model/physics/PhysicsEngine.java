@@ -1,8 +1,7 @@
-package asteroid.physics;
+package asteroid.model.physics;
 
 import asteroid.dto.PhysicValuesDto;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;

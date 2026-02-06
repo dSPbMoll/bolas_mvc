@@ -1,12 +1,11 @@
 package asteroid.model.body;
 
-import asteroid.controller.entity.EntitySize;
 import asteroid.controller.entity.EntityType;
 import asteroid.dto.PhysicValuesDto;
 import asteroid.model.Model;
-import asteroid.physics.PhysicsEngine;
-import asteroid.physics.ScalarPhysicalVariable;
-import asteroid.physics.VectorialPhysicalVariable;
+import asteroid.model.physics.PhysicsEngine;
+import asteroid.model.physics.ScalarPhysicalVariable;
+import asteroid.model.physics.VectorialPhysicalVariable;
 
 import java.awt.geom.Point2D;
 
@@ -15,10 +14,10 @@ public abstract class Body {
     protected final long entityId;
     protected EntityType type;
     protected PhysicsEngine physicsEngine;
-    protected EntitySize size;
+    protected Point2D.Double size;
     protected double rotationAngle;
 
-    public Body(long entityId, EntityType type, EntitySize size, PhysicsEngine physicsEngine) {
+    public Body(long entityId, EntityType type, Point2D.Double size, PhysicsEngine physicsEngine) {
         this.entityId = entityId;
         this.size = size;
         this.type = type;
@@ -35,11 +34,11 @@ public abstract class Body {
         return this.type;
     }
 
-    public EntitySize getSize() {
+    public Point2D.Double getSize() {
         return this.size;
     }
 
-    public void setSize(EntitySize size) {
+    public void setSize(Point2D.Double size) {
         this.size = size;
     }
 
