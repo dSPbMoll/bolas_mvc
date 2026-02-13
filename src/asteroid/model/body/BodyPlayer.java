@@ -1,12 +1,11 @@
 package asteroid.model.body;
 
-import asteroid.controller.entity.EntitySize;
 import asteroid.controller.entity.EntityType;
 import asteroid.dto.PhysicValuesDto;
 import asteroid.dto.ShipMovementDto;
-import asteroid.physics.ScalarPhysicalVariable;
-import asteroid.physics.ShipPhysicsEngine;
-import asteroid.physics.VectorialPhysicalVariable;
+import asteroid.model.physics.ScalarPhysicalVariable;
+import asteroid.model.physics.ShipPhysicsEngine;
+import asteroid.model.physics.VectorialPhysicalVariable;
 import helpers.CardinalDirection;
 
 import java.awt.geom.Point2D;
@@ -16,7 +15,7 @@ import static java.lang.Thread.sleep;
 public class BodyPlayer extends MovingBody {
     protected PlayerWeapon weapon;
 
-    public BodyPlayer(long entityId, EntityType type, EntitySize size, ShipPhysicsEngine physicsEngine) {
+    public BodyPlayer(long entityId, EntityType type, Point2D.Double size, ShipPhysicsEngine physicsEngine) {
         super(entityId, type, size, physicsEngine);
         this.size = size;
         this.rotationAngle = 0;

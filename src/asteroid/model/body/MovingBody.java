@@ -1,11 +1,10 @@
 package asteroid.model.body;
 
-import asteroid.controller.entity.EntitySize;
 import asteroid.controller.entity.EntityType;
 import asteroid.dto.PhysicValuesDto;
-import asteroid.physics.PhysicsEngine;
-import asteroid.physics.ScalarPhysicalVariable;
-import asteroid.physics.VectorialPhysicalVariable;
+import asteroid.model.physics.PhysicsEngine;
+import asteroid.model.physics.ScalarPhysicalVariable;
+import asteroid.model.physics.VectorialPhysicalVariable;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 
@@ -13,7 +12,7 @@ public abstract class MovingBody extends Body implements Runnable {
     protected Thread thread;
     protected volatile boolean running;
 
-    public MovingBody(long entityId, EntityType type, EntitySize size, PhysicsEngine physicsEngine) {
+    public MovingBody(long entityId, EntityType type, Point2D.Double size, PhysicsEngine physicsEngine) {
         super(entityId, type, size, physicsEngine);
     }
 

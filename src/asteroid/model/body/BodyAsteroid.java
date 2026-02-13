@@ -1,23 +1,18 @@
 package asteroid.model.body;
 
-import asteroid.controller.entity.EntitySize;
 import asteroid.controller.entity.EntityType;
 import asteroid.dto.PhysicValuesDto;
-import asteroid.physics.PhysicsEngine;
-import asteroid.physics.PhysicsEngineInterface;
-import asteroid.physics.ScalarPhysicalVariable;
-import asteroid.physics.VectorialPhysicalVariable;
-
+import asteroid.model.physics.PhysicsEngine;
+import asteroid.model.physics.PhysicsEngineInterface;
+import asteroid.model.physics.ScalarPhysicalVariable;
+import asteroid.model.physics.VectorialPhysicalVariable;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
-
-import static java.lang.Math.abs;
-import static java.lang.Thread.sleep;
 
 public class BodyAsteroid extends MovingBody {
     protected PhysicsEngineInterface physicsEngine;
 
-    public BodyAsteroid(long entityId, EntityType type, EntitySize size, PhysicsEngine physicsEngine) {
+    public BodyAsteroid(long entityId, EntityType type, Point2D.Double size, PhysicsEngine physicsEngine) {
         super(entityId, type, size, physicsEngine);
 
         this.physicsEngine = physicsEngine;

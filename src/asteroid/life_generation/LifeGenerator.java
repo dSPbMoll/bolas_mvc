@@ -1,20 +1,17 @@
 package asteroid.life_generation;
 
-import asteroid.controller.Controller;
-import asteroid.controller.entity.CircularSize;
+import asteroid.controller.GameController;
 import asteroid.controller.entity.EntityType;
-import asteroid.controller.entity.RectangularSize;
 import asteroid.dto.EntityParamsDto;
-import asteroid.model.body.Body;
-import asteroid.model.body.BodyAsteroid;
-import asteroid.model.body.BodyPlayer;
-import asteroid.model.body.BodyShot;
-import asteroid.physics.BasicPhysicsEngine;
-import asteroid.physics.ShipPhysicsEngine;
+import asteroid.model.body.*;
+import asteroid.model.physics.BasicPhysicsEngine;
+import asteroid.model.physics.ShipPhysicsEngine;
 import asteroid.view.renderable.RendAsteroid;
 import asteroid.view.renderable.RendPlayer;
 import asteroid.view.renderable.RendShot;
 import asteroid.view.renderable.Renderable;
+import communications.dto.Frame;
+import communications.dto.PayloadComms;
 import config.simulation.AsteroidConfig;
 import config.simulation.WorldConfig;
 import helpers.ss_animation.Sprite;
@@ -29,9 +26,9 @@ import static java.lang.Thread.sleep;
 
 public class LifeGenerator implements Runnable {
     private Thread thread;
-    private Controller controller;
+    private GameController controller;
     private boolean running;
-    private int delay = 250;
+    private int delay = 4000;
     private final EntityParams entityParams;
     private static final AtomicLong idGenerator = new AtomicLong(0);
     private final HashMap<WorldConfig, Integer> worldConfigs;
@@ -44,7 +41,7 @@ public class LifeGenerator implements Runnable {
     private final Point2D.Double zero;
 
     public LifeGenerator(
-            Controller controller,
+            GameController controller,
             HashMap<WorldConfig, Integer> worldConfigs,
             HashMap<AsteroidConfig, Integer> asteroidConfigs) {
 
@@ -111,7 +108,7 @@ public class LifeGenerator implements Runnable {
         Renderable generatedRenderable = null;
 
         if (entityType == EntityType.ASTEROID) {
-            CircularSize size = generateRandomCircularSize();
+            Point2D.Double size = generateRandomAsteroidSize();
             Point2D.Double speed = generateRandomSpeed();
             Point2D.Double position = generateRandomPositionInMapBorder(speed);
 
@@ -121,7 +118,7 @@ public class LifeGenerator implements Runnable {
             generatedRenderable = new RendAsteroid(id, EntityType.ASTEROID, sprites.get(EntityType.ASTEROID));
 
         } else if (entityType == EntityType.PLAYER) {
-            RectangularSize size = new RectangularSize(new Point2D.Double(30, 25));
+            Point2D.Double size = new Point2D.Double(30, 25);
             Point2D.Double speed = zero;
             Point2D.Double position = new Point2D.Double(worldConfigs.get(WorldConfig.HALF_WIDTH), worldConfigs.get(WorldConfig.HALF_HEIGHT));
             ShipPhysicsEngine engine = new ShipPhysicsEngine(position, speed, 0, zero, zero, 0.980);
@@ -152,14 +149,16 @@ public class LifeGenerator implements Runnable {
         }
     }
 
-    private int generateRandomNumberBetween2Values(int lower, int higher) {
-        return (int) (Math.random() * (higher - lower + 1)) + lower;
+    private double generateRandomNumberBetween2Values(double lower, double higher) {
+        return ((Math.random() * (higher - lower + 1)) + lower);
     }
 
-    private CircularSize generateRandomCircularSize() {
-        return new CircularSize(generateRandomNumberBetween2Values(
+    private Point2D.Double generateRandomAsteroidSize() {
+        double value = generateRandomNumberBetween2Values(
                 asteroidConfigs.get(AsteroidConfig.MIN_DIAMETER),
-                asteroidConfigs.get(AsteroidConfig.MAX_DIAMETER)));
+                asteroidConfigs.get(AsteroidConfig.MAX_DIAMETER));
+
+        return new Point2D.Double(value, value);
     }
 
     private Point2D.Double generateRandomSpeed() {
@@ -205,7 +204,7 @@ public class LifeGenerator implements Runnable {
     }
 
     private Point2D.Double generateRandomPositionInTopLeftMapBorder(boolean b) {
-        int w, h;
+        double w, h;
 
         if (b) {
             w = 0;
@@ -218,7 +217,7 @@ public class LifeGenerator implements Runnable {
     }
 
     private Point2D.Double generateRandomPositionInBottomLeftMapBorder(boolean b) {
-        int w, h;
+        double w, h;
 
         if (b) {
             w = 0;
@@ -231,7 +230,7 @@ public class LifeGenerator implements Runnable {
     }
 
     private Point2D.Double generateRandomPositionInTopRightMapBorder(boolean b) {
-        int w, h;
+        double w, h;
 
         if (b) {
             w = worldConfigs.get(WorldConfig.WIDTH);
@@ -244,7 +243,7 @@ public class LifeGenerator implements Runnable {
     }
 
     private Point2D.Double generateRandomPositionInBottomRightMapBorder(boolean b) {
-        int w, h;
+        double w, h;
 
         if (b) {
             w = worldConfigs.get(WorldConfig.WIDTH);
@@ -259,7 +258,7 @@ public class LifeGenerator implements Runnable {
     public void generatePlayerShot(long shooterId, Point2D.Double position, double rotationAngle, int totalBulletSpeed) {
         long id = idGenerator.incrementAndGet();
         Point2D.Double speed = calculateSpeedVector(rotationAngle, totalBulletSpeed);
-        RectangularSize size = new RectangularSize(new Point2D.Double(3, 3));
+        Point2D.Double size = new Point2D.Double(3, 3);
 
         BasicPhysicsEngine engine = new BasicPhysicsEngine(position, speed, rotationAngle, zero, zero);
 
@@ -278,12 +277,8 @@ public class LifeGenerator implements Runnable {
     // =================================== IMAGE PREPARATIONS ===================================
 
     private void loadImages(SpriteLoader loader) {
-        //String asteroidImagePath = imageFolderPath + "asteroid.png";
-        //String playerImagePath = imageFolderPath + "spaceship2.png";
         String shotImagePath = imageFolderPath + "yellow_pium_pium.png";
 
-        //sprites.put(EntityType.ASTEROID, loader.loadImage(asteroidImagePath));
-        //sprites.put(EntityType.PLAYER, loader.loadImage(playerImagePath));
         sprites.put(EntityType.SHOT, loader.loadImage(shotImagePath));
     }
 
@@ -305,9 +300,44 @@ public class LifeGenerator implements Runnable {
         loadSpriteSheet(loader, EntityType.ASTEROID, ssPath, 5, 4, 100);
     }
 
-    private void loadSpriteSheet(SpriteLoader loader, EntityType entityType, String ssPath,
-                                 int ssRows, int ssCols, int ssDelay) {
+    private void loadSpriteSheet(
+            SpriteLoader loader, EntityType entityType, String ssPath,
+            int ssRows, int ssCols, int ssDelay) {
         SpriteSheet ss = loader.loadSpriteSheet(ssPath, ssRows, ssCols, ssDelay);
         sprites.put(entityType, ss);
+    }
+
+    public void createMovingBodyFromFrame(PayloadComms payloadComms) {
+        long id = idGenerator.incrementAndGet();
+        Point2D.Double size = payloadComms.size;
+        Point2D.Double speed = payloadComms.speed;
+        Point2D.Double position = payloadComms.position;
+        double rotationAngle = payloadComms.rotationAngle;
+        Body body = null;
+        Renderable renderable = null;
+
+        switch(payloadComms.type) {
+            case ASTEROID:
+                BasicPhysicsEngine engine = new BasicPhysicsEngine(position, speed, 0, zero, zero);
+
+                body = new BodyAsteroid(id, EntityType.ASTEROID, size, engine);
+                renderable = new RendAsteroid(id, EntityType.ASTEROID, sprites.get(EntityType.ASTEROID));
+                break;
+
+            case SHOT:
+                engine = new BasicPhysicsEngine(position, speed, rotationAngle, zero, zero);
+
+                body = new BodyShot(id, 0, EntityType.SHOT, size, engine);
+                renderable = new RendShot(id, EntityType.SHOT, sprites.get(EntityType.SHOT));
+                break;
+
+            case PLAYER:
+                ShipPhysicsEngine engine1 = new ShipPhysicsEngine(position, speed, 0, zero, zero, 0.980);
+
+                body = new BodyPlayer(id, EntityType.PLAYER, size, engine1);
+                renderable = new RendPlayer(id, EntityType.PLAYER, sprites.get(EntityType.PLAYER));
+                break;
+        }
+        controller.addEntity(body, renderable);
     }
 }

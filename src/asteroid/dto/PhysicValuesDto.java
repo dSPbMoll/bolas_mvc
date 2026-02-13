@@ -1,7 +1,7 @@
 package asteroid.dto;
 
-import asteroid.physics.ScalarPhysicalVariable;
-import asteroid.physics.VectorialPhysicalVariable;
+import asteroid.model.physics.ScalarPhysicalVariable;
+import asteroid.model.physics.VectorialPhysicalVariable;
 
 import java.awt.geom.Point2D;
 import java.util.HashMap;

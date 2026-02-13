@@ -1,8 +1,6 @@
 package asteroid.view;
 
-import asteroid.controller.entity.CircularSize;
 import asteroid.controller.entity.EntityType;
-import asteroid.controller.entity.RectangularSize;
 import asteroid.dto.BodyDto;
 import asteroid.dto.ShipMovementDto;
 import asteroid.view.renderable.RenderableSS;
@@ -130,29 +128,9 @@ public class Viewer extends Canvas implements Runnable, KeyListener, MouseMotion
             g2.rotate(rotation, px, py);
 
             // Ship size
-            int w = 0;
-            int h = 0;
+            int w = (int) body.size.getX();
+            int h = (int) body.size.getY();
 
-            switch (body.size.getType()) {
-                case RECTANGULAR:
-                    w = (int) ((RectangularSize) body.size).getValues().getX();
-                    h = (int) ((RectangularSize) body.size).getValues().getY();
-                    break;
-
-                case CIRCULAR:
-                    w = (int) ((CircularSize) body.size).getDiameter();
-                    h = w;
-                    break;
-
-                case VECTORIAL:
-                    System.out.println("VECTORIAL sizes not implemented");
-                    break;
-
-                case COMPOSED:
-                    System.out.println("COMPOSED sizes not implemented");
-                    break;
-
-            }
             double x = px - w/2;
             double y = py - h/2;
 
