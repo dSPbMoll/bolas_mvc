@@ -155,8 +155,8 @@ public class MasterController {
                     new PayloadComms(
                             oldPayload.type,
                             new Point2D.Double(worldWidth -1, oldPayload.position.y),
-                            oldPayload.size,
                             oldPayload.speed,
+                            oldPayload.size,
                             oldPayload.rotationAngle,
                             oldPayload.assetId
                     )
@@ -168,8 +168,8 @@ public class MasterController {
                     new PayloadComms(
                             oldPayload.type,
                             new Point2D.Double(1, oldPayload.position.y),
-                            oldPayload.size,
                             oldPayload.speed,
+                            oldPayload.size,
                             oldPayload.rotationAngle,
                             oldPayload.assetId
                     )
