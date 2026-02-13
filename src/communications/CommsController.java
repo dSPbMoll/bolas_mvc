@@ -5,9 +5,8 @@ import config.network.PlayerConfig;
 import config.network.SelfConfig;
 import master.MasterController;
 
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -91,13 +90,9 @@ public class CommsController {
         int selfPlayerNum = selfConfig.get(SelfConfig.PLAYER_NUM);
         HashMap<PlayerConfig, String> selfPlayer = playersConfigs.get(selfPlayerNum);
 
-        String selfIP = null;
-        try {
-            selfIP = InetAddress.getLocalHost().getHostAddress();
-            System.out.println("Your IP is: " + selfIP);
-        } catch(UnknownHostException e) {
-            System.out.println("Failed getting selfIP in CommsController");
-        }
+        String selfIP = getRealSelfIp();
+        System.out.println("Your IP is: " + selfIP);
+
 
         String entryIP = selfPlayer.get(PlayerConfig.IP);
         String entryPort = selfPlayer.get(PlayerConfig.PORT);
@@ -136,6 +131,50 @@ public class CommsController {
         masterController.sendEnteringFrameToApp(frame);
     }
 
+    private String getRealSelfIp(){
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+
+                // Saltar interfaces inactivas, loopback y virtuales
+                if (!iface.isUp() || iface.isLoopback()) {
+                    continue;
+                }
+
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+
+                    // Only IPv4
+                    if (addr instanceof Inet4Address) {
+                        String ip = addr.getHostAddress();
+
+                        // Buscar específicamente IPs de la red WifiWire (172.16.8.x)
+                        if (ip.startsWith("172.25.26.")) {
+                            return ip;
+                        }
+                    }
+                }
+            }
+
+            System.out.println("No se encontró IP 172.16.8.x, usando getLocalHost()");
+            return InetAddress.getLocalHost().getHostAddress();
+
+        } catch (SocketException e) {
+            System.err.println("Error obteniendo interfaces de red: " + e.getMessage());
+            try {
+                return InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException ex) {
+                return "localhost";
+            }
+        } catch (UnknownHostException e) {
+            System.err.println("Error obteniendo host local: " + e.getMessage());
+            return "localhost";
+        }
+    }
 
 
 
