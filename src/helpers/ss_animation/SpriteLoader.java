@@ -35,9 +35,6 @@ public class SpriteLoader {
             int frameWidth = sheet.getWidth() / cols;
             int frameHeight = sheet.getHeight() / rows;
 
-            // Limpieza de path para el nombre del archivo debug
-            String debugName = new File(sheetPath).getName().replace(".", "_");
-
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < cols; j++) {
                     // 1. Obtener subimagen
@@ -50,15 +47,6 @@ public class SpriteLoader {
                     g.dispose();
 
                     frames[i * cols + j] = cleanFrame;
-
-                    // ================== BLOQUE DE PRUEBA ==================
-                    // Guardamos solo el primer frame de cada hoja para verificar
-                    if (i == 0 && j == 0) {
-                        File debugFile = new File("DEBUG_" + debugName + "_frame0.png");
-                        ImageIO.write(cleanFrame, "png", debugFile);
-                        System.out.println("--> PRUEBA GUARDADA: " + debugFile.getAbsolutePath());
-                    }
-                    // ======================================================
                 }
             }
             return new SpriteSheet(sheet, frames, delay);

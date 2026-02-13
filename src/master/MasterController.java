@@ -16,12 +16,15 @@ import config.simulation.AsteroidConfig;
 import config.simulation.WorldConfig;
 import helpers.ConfigProcessor;
 
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 
 public class MasterController {
     private GameController gameController;
     private CommsController commsController;
-    private final int playerNum;
+    private int playerNum;
+    private int worldWidth;
+    private int worldHeight;
 
     public MasterController() {
         ConfigsDto configs = extractConfigs();
@@ -33,6 +36,13 @@ public class MasterController {
                 configs.asteroidConfigs);
 
         this.commsController = new CommsController(this, configs.serverConfigs, configs.selfConfig);
+
+        this.worldWidth = configs.worldConfigs.get(WorldConfig.WIDTH);
+        this.worldHeight = configs.worldConfigs.get(WorldConfig.HEIGHT);
+    }
+
+    public void setPlayerNum(int playerNum) {
+        this.playerNum = playerNum;
     }
 
     private ConfigsDto extractConfigs() {
@@ -102,6 +112,7 @@ public class MasterController {
     }
 
     public void movingBodyEventManager(EventType event, MovingBody movingBody) {
+        gameController.deleteEntity(movingBody.getType(), movingBody.getEntityId());
         switch (event) {
             case EAST_LIMIT_REACHED:
                 if (playerNum == 1) {
@@ -117,7 +128,6 @@ public class MasterController {
                 }
                 break;
         }
-        gameController.deleteEntity(movingBody.getType(), movingBody.getEntityId());
     }
 
     private Frame transformMovingBodyIntroFrame(MovingBody movingBody) {
@@ -130,10 +140,70 @@ public class MasterController {
                 0
         );
 
+        System.out.println("Master controller sending frame");
+
         return new Frame(CommType.APP, payloadComms);
     }
 
+    private Frame transformEnteringFramePosition(Frame frame) {
+        Frame newFrame = null;
+        PayloadComms newPayload = null;
+        PayloadComms oldPayload = frame.payload;
+        if (playerNum == 1) {
+            newFrame = new Frame(
+                    frame.header,
+                    new PayloadComms(
+                            oldPayload.type,
+                            new Point2D.Double(worldWidth -1, oldPayload.position.y),
+                            oldPayload.size,
+                            oldPayload.speed,
+                            oldPayload.rotationAngle,
+                            oldPayload.assetId
+                    )
+            );
+
+        } else if (playerNum == 2) {
+            newFrame = new Frame(
+                    frame.header,
+                    new PayloadComms(
+                            oldPayload.type,
+                            new Point2D.Double(1, oldPayload.position.y),
+                            oldPayload.speed,
+                            oldPayload.size,
+                            oldPayload.rotationAngle,
+                            oldPayload.assetId
+                    )
+            );
+        }
+        return newFrame;
+    }
+
     public void sendEnteringFrameToApp(Frame frame) {
-        gameController.processEnteringBody(frame.payload);
+        System.out.println("Master controller reciving frame from comms controller:");
+        Frame frameForSend = transformEnteringFramePosition(frame);
+
+
+        PayloadComms payload = frameForSend.payload;
+        String message = String.format("""
+                Header: %s
+                Payload:
+                    type: %s
+                    position: (%f, %f)
+                    speed: (%f, %f)
+                    size: (%f, %f)
+                    rotationAngle: %f
+                    assetId: %d
+                """,
+                frameForSend.header,
+                payload.type,
+                payload.position.x, payload.position.y,
+                payload.speed.x, payload.speed.y,
+                payload.size.x, payload.size.y,
+                payload.rotationAngle,
+                payload.assetId);
+        System.out.println(message);
+
+
+        gameController.processEnteringBody(frameForSend.payload);
     }
 }

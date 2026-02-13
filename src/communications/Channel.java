@@ -26,6 +26,7 @@ public class Channel implements Runnable {
         this.player = player;
         this.lastSeen = System.currentTimeMillis();
         this.healthChecker = new HealthChecker(this);
+        this.healthChecker.startThread();
     }
 
     public String getPlayer() {
@@ -45,6 +46,7 @@ public class Channel implements Runnable {
     }
 
     public void startThread(){
+        this.lastSeen = System.currentTimeMillis();
         running = true;
         thread = new Thread(this);
         thread.start();
@@ -60,11 +62,11 @@ public class Channel implements Runnable {
     public void prepareStreams() {
         try {
             // Get IO streams from the socket
-            in  = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+            in  = new ObjectInputStream(socket.getInputStream());
         } catch (Exception e) {
-            System.out.println("Error in Channel's run(): " + e);
-            System.out.println("Connection stablished with " + clientAddress + " (" + player + ")");
+            System.out.println("Error while preparing streams in Channel: " + e);
         }
     }
 
@@ -72,10 +74,9 @@ public class Channel implements Runnable {
     public void run() {
         while (running) {
             try {
-                processClient();
-            }
-            catch (Exception e) {
-                System.out.println(e);
+                if (in != null && out != null) processClient();
+            } catch (Exception e) {
+                System.out.println("Error while processing client in channel (" + player + "): " + e);
             }
         }
     }
@@ -108,39 +109,51 @@ public class Channel implements Runnable {
     // =============================== HEATH CHECKING ===============================
 
     public void sendHealthPing() {
-        try {
-            out.writeObject(new Frame(CommType.HEALTH, null));
-            out.flush();
-        } catch (IOException e) {
-            killSocket();
+        if (out == null) return;
+        synchronized (out) {
+            try {
+                if (out != null) {
+                    out.writeObject(new Frame(CommType.HEALTH, null));
+                    out.flush();
+                }
+            } catch (IOException e) {
+                killSocket();
+            }
         }
     }
 
     public void killSocket() {
         try {
-            socket.close();
+            if (socket != null) socket.close();
         } catch (IOException e) {
             System.out.println("Error closing the connection, forcing close");
         }
 
-        System.out.println("Client (" + clientAddress + ") connection closed\n");
+        System.out.println("Client (" + clientAddress + " : " + port + ") connection closed\n");
         this.socket = null;
         this.in = null;
         this.out = null;
         commsController.registerChannelKilled(this.player);
+        this.stopThread();
+        healthChecker.stopThread();
     }
 
     public void awakeSocket(Socket socket) {
         this.socket = socket;
         prepareStreams();
+        this.startThread();
+        healthChecker.startThread();
+        System.out.println("Channel prepared with player: " + this.player);
     }
 
     public void sendFrame(Frame frame) {
-        try {
-            out.writeObject(frame);
-            out.flush();
-        } catch(IOException e) {
-            System.err.println("Couldn't send frame");
+        synchronized (out) {
+            try {
+                out.writeObject(frame);
+                out.flush();
+            } catch(IOException e) {
+                System.err.println("Couldn't send frame: " + e);
+            }
         }
     }
 }

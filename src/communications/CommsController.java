@@ -10,18 +10,20 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CommsController {
     private final MasterController masterController;
-    private final HashMap<String, Channel> channels;
-    private ClientConnector clientConnector;
-    private ServerConnector serverConnector;
+    private final ConcurrentHashMap<String, Channel> channelsUp;
+    private final ConcurrentHashMap<String, Channel> channelsDown;
+    private final ClientConnector clientConnector;
+    private final ServerConnector serverConnector;
     private final HashMap<Integer, HashMap<PlayerConfig, String>> playersConfigs;
     private final HashMap<SelfConfig, Integer> selfConfig;
-    private final ConcurrentHashMap<String, Channel> channelsDown;
     private final String selfIP;
-    private final int selfPort;
+    private int selfPort;
+    private int playerNum;
 
     public CommsController(
             MasterController masterController,
@@ -29,7 +31,7 @@ public class CommsController {
             HashMap<SelfConfig, Integer> selfConfig) {
 
         this.masterController = masterController;
-        this.channels = new HashMap<>();
+        this.channelsUp = new ConcurrentHashMap<>();
         this.playersConfigs = playersConfigs;
         this.selfConfig = selfConfig;
         this.channelsDown = new ConcurrentHashMap<>();
@@ -37,11 +39,14 @@ public class CommsController {
         String[] networkVals = getNetworkValsFromConfigs();
         this.selfIP = networkVals[0];
         this.selfPort = Integer.parseInt(networkVals[1]);
+        this.playerNum = selfConfig.get(SelfConfig.PLAYER_NUM);
 
         initChannelsDown();
 
-        this.clientConnector = new ClientConnector(this);
         this.serverConnector = new ServerConnector(this, selfPort);
+        this.clientConnector = new ClientConnector(this);
+        serverConnector.startThread();
+        clientConnector.startThread();
     }
 
     public ConcurrentHashMap<String, Channel> getChannelsDown() {
@@ -49,25 +54,36 @@ public class CommsController {
     }
 
     private void initChannelsDown() {
+        System.out.println("SelfPlayer: " + playerNum);
         for (Map.Entry<Integer, HashMap<PlayerConfig, String>> entry : playersConfigs.entrySet()) {
-            if (entry.getValue().get(PlayerConfig.IP).equals(selfIP)) continue;
+            if (Objects.equals(entry.getKey(), playerNum)) continue;
 
-            String ip = entry.getValue().get(PlayerConfig.IP);
-            int port = Integer.parseInt(entry.getValue().get(PlayerConfig.PORT));
+            String entryIp = entry.getValue().get(PlayerConfig.IP);
+            int entryPort = Integer.parseInt(entry.getValue().get(PlayerConfig.PORT));
+            if (entryIp.equals(selfIP) && entryPort == selfPort) continue;
+
             String player = "PLAYER" + entry.getKey();
-
-            channelsDown.put(player, new Channel(this, ip, port, player));
+            System.out.println("Adding to ChannelsDown: " + player);
+            channelsDown.put(player, new Channel(this, entryIp, entryPort, player));
         }
     }
 
     public void registerChannelKilled(String player) {
-        Channel channel = channels.get(player);
+        Channel channel = channelsUp.get(player);
+        if (channel == null) return;
+        channelsUp.remove(player);
         channelsDown.put(player, channel);
     }
 
-    public void reviveChannelSocket(String player, Socket socket) {
+    synchronized public void reviveChannelSocket(String player, Socket socket) {
+        Channel channel = channelsDown.get(player);
+        if (channel == null) {
+            System.out.println("(CommsController) Channel is null. Returning");
+            return;
+        }
+
         channelsDown.remove(player);
-        Channel channel = channels.get(player);
+        channelsUp.put(player, channel);
         channel.awakeSocket(socket);
     }
 
@@ -100,12 +116,57 @@ public class CommsController {
         return null;
     }
 
-    public void sendFrameToPlayerWithNum(int playerNum, Frame frame) {
-        Channel sendingChannel = channels.get("PLAYER" + playerNum);
-        if (!channelsDown.contains(sendingChannel)) sendingChannel.sendFrame(frame);
+    public void sendFrameToPlayerWithNum(int destinyPlayerNum, Frame frame) {
+        Channel sendingChannel = channelsUp.get("PLAYER" + destinyPlayerNum);
+
+        //System.out.println("PLAYER NUM OF CONFIGS" + playerNum);
+        //System.out.println("DESTINY PLAYER NUM: " + destinyPlayerNum);
+        //printChannelEntries();
+
+
+        if (sendingChannel != null) {
+            sendingChannel.sendFrame(frame);
+            //System.out.println("FRAME RECEIVED, IS NOT NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        } else {
+            //System.out.println("SENDING CHANNEL ES NULL ME CAGO EN DIOS");
+        }
     }
 
     public void sendEnteringFrameToApp(Frame frame) {
         masterController.sendEnteringFrameToApp(frame);
+    }
+
+
+
+
+    // =========================== TESTING IN SAME MACHINE ===================================
+
+    public void enableTestingInSameMachine(int newPort) {
+        this.selfPort = newPort;
+
+
+        if (playerNum == 1) {
+            playerNum = 2;
+        } else if (playerNum == 2) {
+            playerNum = 1;
+        }
+
+        masterController.setPlayerNum(playerNum);
+
+        channelsDown.clear();
+        initChannelsDown();
+    }
+
+    // ============================ DEBUG ================================
+    public void printChannelEntries() {
+        System.out.println("ChannelsUp: ");
+        for (Map.Entry<String, Channel> entry : this.channelsUp.entrySet()) {
+            System.out.println("Player: " + entry.getKey());
+        }
+        System.out.println();
+        System.out.println("ChannelsDown: ");
+        for (Map.Entry<String, Channel> entry : this.channelsDown.entrySet()) {
+            System.out.println("Player: " + entry.getKey());
+        }
     }
 }

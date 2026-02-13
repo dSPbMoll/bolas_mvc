@@ -1,7 +1,5 @@
 package communications;
 
-import static java.lang.Thread.sleep;
-
 public class HealthChecker implements Runnable {
     private Channel channel;
     private Thread thread;
@@ -27,7 +25,7 @@ public class HealthChecker implements Runnable {
     }
 
     public void run() {
-        long timeout = 2000;
+        long timeout = 4000;
         while (running) {
             channel.sendHealthPing();
 
